@@ -1,13 +1,18 @@
 package org.netbeans.asciidoc;
 
+import java.io.File;
+import java.util.HashMap;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
+import org.asciidoctor.Asciidoctor;
+import static org.asciidoctor.Asciidoctor.Factory.create;
 import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
 import org.openide.awt.UndoRedo;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
@@ -31,6 +36,25 @@ public final class AdocVisualElement extends JPanel implements MultiViewElement 
         obj = lkp.lookup(AdocDataObject.class);
         assert obj != null;
         initComponents();
+
+        //Convert file to html and add to editorpane:
+        //http://asciidoctor.org/docs/asciidoctorj/
+        //https://github.com/asciidoctor/asciidoctorj/issues/102%3Ebut
+        //https://github.com/asciidoctor/asciidoctorj#converting-documents
+        //org.jruby.exceptions.RaiseException: (LoadError) no such file to load -- asciidoctor
+        //http://discuss.asciidoctor.org/AsciidoctorJ-error-when-using-in-a-OSGi-bundle-td1910.html
+        File file = FileUtil.toFile(obj.getPrimaryFile());
+//        Asciidoctor asciidoctor = create(ClassLoader.getSystemClassLoader());
+        Asciidoctor ascii = create(ClassLoader.getSystemClassLoader());
+//        Asciidoctor ascii = Asciidoctor.Factory.create(ClassLoader.getSystemClassLoader()); 
+//        ascii = Asciidoctor.Factory.create(AdocVisualElement.class.getClassLoader()); 
+        String html = ascii.convertFile(file, new HashMap<String, Object>());
+//        String html = ascii.convert(
+//                "Writing AsciiDoc is _easy_!",
+//                new HashMap<String, Object>());
+        htmlEditorPane.setText(html);
+        
+
     }
 
     @Override
@@ -46,19 +70,27 @@ public final class AdocVisualElement extends JPanel implements MultiViewElement 
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jScrollPane1 = new javax.swing.JScrollPane();
+        htmlEditorPane = new javax.swing.JEditorPane();
+
+        htmlEditorPane.setContentType("text/html"); // NOI18N
+        jScrollPane1.setViewportView(htmlEditorPane);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JEditorPane htmlEditorPane;
+    private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
     @Override
     public JComponent getVisualRepresentation() {
