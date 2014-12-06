@@ -1,5 +1,6 @@
 package org.netbeans.asciidoc;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
 import javax.swing.Action;
@@ -11,6 +12,8 @@ import org.asciidoctor.Attributes;
 import org.asciidoctor.AttributesBuilder;
 import org.asciidoctor.OptionsBuilder;
 import org.asciidoctor.SafeMode;
+import org.netbeans.api.progress.ProgressHandle;
+import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
@@ -39,20 +42,25 @@ public final class AdocVisualElement extends JPanel implements MultiViewElement 
         obj = lkp.lookup(AdocDataObject.class);
         assert obj != null;
         initComponents();
-        ClassLoader old = Thread.currentThread().getContextClassLoader();
-        try {
-            Thread.currentThread().setContextClassLoader(AdocVisualElement.class.getClassLoader());
-            Asciidoctor doctor = Asciidoctor.Factory.create(Arrays.asList(
-                    "gems/asciidoctor-1.5.0/lib",
-                    "gems/coderay-1.1.0/lib",
-                    "META-INF/jruby.home/lib/ruby/1.8"));
-            String html = doctor.convert(obj.getPrimaryFile().asText(), getInitialOptions());
-            htmlEditorPane.setText(html);
-        } catch (Exception a) {
-            Exceptions.printStackTrace(a);
-        } finally {
-            Thread.currentThread().setContextClassLoader(old);
-        }
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    ProgressHandle h = ProgressHandleFactory.createHandle("Converting...");
+                    h.start();
+                    Asciidoctor doctor = Asciidoctor.Factory.create(Arrays.asList(
+                            "gems/asciidoctor-1.5.0/lib",
+                            "gems/coderay-1.1.0/lib",
+                            "META-INF/jruby.home/lib/ruby/1.8"));
+                    String html = doctor.convert(obj.getPrimaryFile().asText(), getInitialOptions());
+                    htmlEditorPane.setText(html);
+                    h.finish();
+                } catch (IOException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            }
+        });
+        t.start();
     }
 
     public Map<String, Object> getInitialOptions() {
