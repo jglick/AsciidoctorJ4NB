@@ -1,18 +1,21 @@
 package org.netbeans.asciidoc;
 
-import java.io.File;
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.Map;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import org.asciidoctor.Asciidoctor;
-import static org.asciidoctor.Asciidoctor.Factory.create;
+import org.asciidoctor.Attributes;
+import org.asciidoctor.AttributesBuilder;
+import org.asciidoctor.OptionsBuilder;
+import org.asciidoctor.SafeMode;
 import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
 import org.openide.awt.UndoRedo;
-import org.openide.filesystems.FileUtil;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
@@ -36,25 +39,34 @@ public final class AdocVisualElement extends JPanel implements MultiViewElement 
         obj = lkp.lookup(AdocDataObject.class);
         assert obj != null;
         initComponents();
+        ClassLoader old = Thread.currentThread().getContextClassLoader();
+        try {
+            Thread.currentThread().setContextClassLoader(AdocVisualElement.class.getClassLoader());
+            Asciidoctor doctor = Asciidoctor.Factory.create(Arrays.asList(
+                    "gems/asciidoctor-1.5.0/lib",
+                    "gems/coderay-1.1.0/lib",
+                    "META-INF/jruby.home/lib/ruby/1.8"));
+            String html = doctor.convert(obj.getPrimaryFile().asText(), getInitialOptions());
+            htmlEditorPane.setText(html);
+        } catch (Exception a) {
+            Exceptions.printStackTrace(a);
+        } finally {
+            Thread.currentThread().setContextClassLoader(old);
+        }
+    }
 
-        //Convert file to html and add to editorpane:
-        //http://asciidoctor.org/docs/asciidoctorj/
-        //https://github.com/asciidoctor/asciidoctorj/issues/102%3Ebut
-        //https://github.com/asciidoctor/asciidoctorj#converting-documents
-        //org.jruby.exceptions.RaiseException: (LoadError) no such file to load -- asciidoctor
-        //http://discuss.asciidoctor.org/AsciidoctorJ-error-when-using-in-a-OSGi-bundle-td1910.html
-        File file = FileUtil.toFile(obj.getPrimaryFile());
-//        Asciidoctor asciidoctor = create(ClassLoader.getSystemClassLoader());
-        Asciidoctor ascii = create(ClassLoader.getSystemClassLoader());
-//        Asciidoctor ascii = Asciidoctor.Factory.create(ClassLoader.getSystemClassLoader()); 
-//        ascii = Asciidoctor.Factory.create(AdocVisualElement.class.getClassLoader()); 
-        String html = ascii.convertFile(file, new HashMap<String, Object>());
-//        String html = ascii.convert(
-//                "Writing AsciiDoc is _easy_!",
-//                new HashMap<String, Object>());
-        htmlEditorPane.setText(html);
-        
-
+    public Map<String, Object> getInitialOptions() {
+        Attributes attrs = AttributesBuilder.attributes().
+                showTitle(true)
+                .sourceHighlighter("coderay").
+                attribute("coderay-css", "style").
+                get();
+        OptionsBuilder opts = OptionsBuilder.options().safe(
+                SafeMode.SAFE).
+                backend("html5").
+                headerFooter(true).
+                attributes(attrs);
+        return opts.asMap();
     }
 
     @Override
