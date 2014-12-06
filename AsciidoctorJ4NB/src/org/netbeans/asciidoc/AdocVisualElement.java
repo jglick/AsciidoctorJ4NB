@@ -22,7 +22,7 @@ import org.openide.windows.TopComponent;
 
 @MultiViewElement.Registration(
         displayName = "#LBL_Adoc_VISUAL",
-        iconBase = "org/netbeans/asciidoc/icon.png",
+        iconBase = "org/netbeans/asciidoc/resources/icon.png",
         mimeType = "text/x-adoc",
         persistenceType = TopComponent.PERSISTENCE_NEVER,
         preferredID = "AdocVisual",

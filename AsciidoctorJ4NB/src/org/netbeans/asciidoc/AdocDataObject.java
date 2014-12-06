@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.netbeans.asciidoc;
 
 import java.io.IOException;
@@ -31,7 +26,7 @@ import org.openide.windows.TopComponent;
 )
 @DataObject.Registration(
         mimeType = "text/x-adoc",
-        iconBase = "org/netbeans/asciidoc/icon.png",
+        iconBase = "org/netbeans/asciidoc/resources/icon.png",
         displayName = "#LBL_Adoc_LOADER",
         position = 300
 )
@@ -101,7 +96,7 @@ public class AdocDataObject extends MultiDataObject {
 
     @MultiViewElement.Registration(
             displayName = "#LBL_Adoc_EDITOR",
-            iconBase = "org/netbeans/asciidoc/icon.png",
+            iconBase = "org/netbeans/asciidoc/resources/icon.png",
             mimeType = "text/x-adoc",
             persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED,
             preferredID = "Adoc",

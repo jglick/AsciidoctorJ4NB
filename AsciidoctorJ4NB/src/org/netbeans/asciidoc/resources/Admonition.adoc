@@ -1,0 +1,12 @@
+[NOTE]
+====
+:icons: font
+An admonition block may contain complex content.
+
+.A list
+- one
+- two
+- three
+
+Another paragraph.
+====
