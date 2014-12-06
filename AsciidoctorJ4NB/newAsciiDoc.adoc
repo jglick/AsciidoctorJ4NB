@@ -1,0 +1,7 @@
+= Sample Document
+
+== Section one
+This is content of section one
+
+== Section two
+And content of section two

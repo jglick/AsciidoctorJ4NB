@@ -90,16 +90,16 @@
             </module-dependencies>
             <public-packages/>
             <class-path-extension>
-                <runtime-relative-path>ext/org-jruby-jruby.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/org-jruby-jruby.jar</binary-origin>
+                <runtime-relative-path>ext/org.slf4j.simple-1.6.1.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/org.slf4j.simple-1.6.1.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/jruby-complete-1.7.16.1.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/jruby-complete-1.7.16.1.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/slf4j-api-1.7.7.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/slf4j-api-1.7.7.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/jruby-complete-1.7.9.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/jruby-complete-1.7.9.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/asciidoctorj-1.5.1.jar</runtime-relative-path>
