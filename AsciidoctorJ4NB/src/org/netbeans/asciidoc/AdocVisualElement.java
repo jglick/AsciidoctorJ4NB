@@ -18,6 +18,8 @@ import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
 import org.openide.awt.UndoRedo;
+import org.openide.filesystems.FileChangeAdapter;
+import org.openide.filesystems.FileEvent;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
@@ -42,6 +44,16 @@ public final class AdocVisualElement extends JPanel implements MultiViewElement 
         obj = lkp.lookup(AdocDataObject.class);
         assert obj != null;
         initComponents();
+        convert();
+        obj.getPrimaryFile().addFileChangeListener(new FileChangeAdapter(){
+            @Override
+            public void fileChanged(FileEvent fe) {
+                convert();
+            }
+        });
+    }
+
+    private void convert() {
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -119,6 +131,7 @@ public final class AdocVisualElement extends JPanel implements MultiViewElement 
 
     @Override
     public JComponent getToolbarRepresentation() {
+        toolbar.setFloatable(false);
         return toolbar;
     }
 
