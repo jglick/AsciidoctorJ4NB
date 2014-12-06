@@ -13,3 +13,4 @@ NetBeans plugin that integrates AsciidoctorJ
 <li>rendering options</li>
 <li>syntax coloring</li>
 </ul>
+<p><b>Note:</b> Explore reusing https://github.com/madflow/flow-netbeans-markdown.
