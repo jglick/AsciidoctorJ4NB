@@ -36,8 +36,8 @@ import org.openide.windows.TopComponent;
 @Messages("LBL_Adoc_VISUAL=Visual")
 public final class AdocVisualElement extends JPanel implements MultiViewElement {
 
-    private AdocDataObject obj;
-    private JToolBar toolbar = new JToolBar();
+    private final AdocDataObject obj;
+    private final JToolBar toolbar = new JToolBar();
     private transient MultiViewElementCallback callback;
 
     public AdocVisualElement(Lookup lkp) {
