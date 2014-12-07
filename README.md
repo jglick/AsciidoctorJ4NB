@@ -9,7 +9,7 @@ NetBeans plugin that integrates AsciidoctorJ
 <p>To do:</p>
 <ul>
 <li><del>progress bar</del></li>
-<li>synchronization</li>
+<li><del>synchronization</del></li>
 <li>rendering options</li>
 <li>syntax coloring</li>
 </ul>
