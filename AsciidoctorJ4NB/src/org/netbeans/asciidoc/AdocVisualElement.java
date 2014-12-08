@@ -49,9 +49,9 @@ public final class AdocVisualElement extends JPanel implements MultiViewElement 
                     ProgressHandle h = ProgressHandleFactory.createHandle("Converting...");
                     h.start();
                     Asciidoctor doctor = Asciidoctor.Factory.create(Arrays.asList(
-                            "gems/asciidoctor-1.5.0/lib",
+                            "gems/asciidoctor-1.5.2/lib",
                             "gems/coderay-1.1.0/lib",
-                            "META-INF/jruby.home/lib/ruby/1.8"));
+                            "META-INF/jruby.home/lib/ruby/1.9"));
                     String html = doctor.convert(obj.getPrimaryFile().asText(), getInitialOptions());
                     htmlEditorPane.setText(html);
                     h.finish();
