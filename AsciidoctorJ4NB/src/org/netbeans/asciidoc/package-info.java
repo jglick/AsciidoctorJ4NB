@@ -1,6 +1,6 @@
 @TemplateRegistrations({
-    @TemplateRegistration(folder = "Ascii", displayName = "Simple", content = "resources/AsciiDoc.adoc", requireProject = false),
-    @TemplateRegistration(folder = "Ascii", displayName = "Admonition", content = "resources/Admonition.adoc", requireProject = false),
+    @TemplateRegistration(folder = "AsciiDoc", displayName = "Simple", content = "resources/AsciiDoc.adoc", requireProject = false),
+    @TemplateRegistration(folder = "AsciiDoc", displayName = "Admonition", content = "resources/Admonition.adoc", requireProject = false),
 })
 package org.netbeans.asciidoc;
 
