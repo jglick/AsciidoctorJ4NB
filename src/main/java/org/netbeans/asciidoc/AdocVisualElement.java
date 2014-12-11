@@ -26,14 +26,14 @@ import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
 
 @MultiViewElement.Registration(
-        displayName = "#LBL_Adoc_VISUAL",
+        displayName = "#LBL_ASCIIDOC_VISUAL",
         iconBase = "org/netbeans/asciidoc/resources/icon.png",
-        mimeType = "text/x-adoc",
+        mimeType = "text/x-asciidoc",
         persistenceType = TopComponent.PERSISTENCE_NEVER,
         preferredID = "AdocVisual",
         position = 2000
 )
-@Messages("LBL_Adoc_VISUAL=Visual")
+@Messages("LBL_ASCIIDOC_VISUAL=Visual")
 public final class AdocVisualElement extends JPanel implements MultiViewElement {
 
     private final AdocDataObject obj;
