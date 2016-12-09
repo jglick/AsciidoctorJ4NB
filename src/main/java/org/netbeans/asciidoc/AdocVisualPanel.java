@@ -4,6 +4,10 @@ import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
+import javafx.embed.swing.JFXPanel;
+import javafx.scene.Scene;
+import javafx.scene.web.WebView;
 import javax.swing.JPanel;
 import org.asciidoctor.Attributes;
 import org.asciidoctor.AttributesBuilder;
@@ -13,7 +17,6 @@ import org.asciidoctor.SafeMode;
 import org.jtrim.concurrent.GenericUpdateTaskExecutor;
 import org.jtrim.concurrent.TaskExecutor;
 import org.jtrim.concurrent.UpdateTaskExecutor;
-import org.jtrim.swing.concurrent.SwingUpdateTaskExecutor;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 
@@ -24,15 +27,23 @@ public final class AdocVisualPanel extends JPanel {
     private final UpdateTaskExecutor adocUpdater;
     private final UpdateTaskExecutor htmlComponentUpdater;
 
+    private final JFXPanel jfxPanel;
+
+    private WebView webView;
+
     public AdocVisualPanel() {
         this(AdocExecutors.DEFAULT_EXECUTOR);
     }
 
     public AdocVisualPanel(TaskExecutor executor) {
         adocUpdater = new GenericUpdateTaskExecutor(executor);
-        htmlComponentUpdater = new SwingUpdateTaskExecutor(true);
+        htmlComponentUpdater = new GenericUpdateTaskExecutor(Platform::runLater);
+        webView = null;
 
         initComponents();
+
+        jfxPanel = new JFXPanel();
+        add(jfxPanel);
     }
 
     public void updateWithAsciidoc(Supplier<String> asciidocProvider) {
@@ -45,7 +56,7 @@ public final class AdocVisualPanel extends JPanel {
                 String asciidocText = asciidocProvider.get();
                 String html = AsciidoctorConverter.getDefault().convert(asciidocText, getInitialOptions());
 
-                htmlComponentUpdater.execute(() -> htmlEditorPane.setText(html));
+                htmlComponentUpdater.execute(() -> updateHtmlNow(html));
             } catch (Throwable ex) {
                 // TODO: Show the problem to the user.
                 LOGGER.log(Level.INFO, "Failed to convert text to html.", ex);
@@ -53,6 +64,17 @@ public final class AdocVisualPanel extends JPanel {
                 handle.finish();
             }
         });
+    }
+
+    private void updateHtmlNow(String html) {
+        WebView currentWebView = webView;
+        if (currentWebView == null) {
+            currentWebView = new WebView();
+            jfxPanel.setScene(new Scene(currentWebView));
+            webView = currentWebView;
+        }
+
+        currentWebView.getEngine().loadContent(html);
     }
 
     public Options getInitialOptions() {
@@ -82,26 +104,9 @@ public final class AdocVisualPanel extends JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jScrollPane1 = new javax.swing.JScrollPane();
-        htmlEditorPane = new javax.swing.JEditorPane();
-
-        htmlEditorPane.setContentType("text/html"); // NOI18N
-        jScrollPane1.setViewportView(htmlEditorPane);
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
-        );
+        setLayout(new java.awt.GridLayout(1, 1));
     }// </editor-fold>//GEN-END:initComponents
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JEditorPane htmlEditorPane;
-    private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
 }
