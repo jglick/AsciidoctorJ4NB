@@ -11,5 +11,5 @@ To do:
 - [X] progress bar
 - [X] synchronization
 - [ ] rendering options
-- [ ] syntax coloring
+- [ ] syntax coloring using https://github.com/asciidocj/asciidocj
 - [ ] explore reusing https://github.com/madflow/flow-netbeans-markdown
