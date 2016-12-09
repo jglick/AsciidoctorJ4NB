@@ -84,6 +84,7 @@ import org.openide.windows.TopComponent;
     )
 })
 public class AdocDataObject extends MultiDataObject {
+    private static final long serialVersionUID = 1L;
 
     public AdocDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
         super(pf, loader);
