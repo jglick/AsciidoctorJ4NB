@@ -1,6 +1,7 @@
 package org.netbeans.asciidoc;
 
 import java.io.IOException;
+import org.netbeans.asciidoc.highlighter.AsciidoctorLanguageConfig;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
 import org.openide.awt.ActionID;
@@ -21,8 +22,7 @@ import org.openide.windows.TopComponent;
 })
 @MIMEResolver.ExtensionRegistration(
         displayName = "#LBL_ASCIIDOC_LOADER",
-        mimeType = "text/x-asciidoc",
-        //recognizes the AsciiDoc file extension (.adoc, .asciidoc, .ad, .asc)
+        mimeType = AsciidoctorLanguageConfig.MIME_TYPE,
         extension = {"ad", "adoc", "asc", "asciidoc"}
 )
 @DataObject.Registration(

@@ -20,6 +20,10 @@ public final class AsciidoctorConverter {
         return DEFAULT_REF.get();
     }
 
+    public Asciidoctor getDoctor() {
+        return doctor;
+    }
+
     public String convert(String src, Options options) {
         return doctor.convert(src, options);
     }
