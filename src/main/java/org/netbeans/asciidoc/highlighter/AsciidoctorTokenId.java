@@ -2,8 +2,6 @@ package org.netbeans.asciidoc.highlighter;
 
 import java.util.Collection;
 import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import org.jtrim.collections.CollectionsEx;
 import org.netbeans.api.lexer.InputAttributes;
@@ -17,14 +15,14 @@ import org.netbeans.spi.lexer.Lexer;
 import org.netbeans.spi.lexer.LexerRestartInfo;
 
 public enum AsciidoctorTokenId implements TokenId {
-    HEADER1("header1"),
-    HEADER2("header2"),
-    HEADER3("header3"),
-    HEADER4("header4"),
-    HEADER5("header5"),
-    HEADER6("header6"),
-    CODE_BLOCK("code_block"),
-    OTHER("other");
+    HEADER1(1, "header1", AsciidoctorTokenId::getHeaderName),
+    HEADER2(2, "header2", AsciidoctorTokenId::getHeaderName),
+    HEADER3(3, "header3", AsciidoctorTokenId::getHeaderName),
+    HEADER4(4, "header4", AsciidoctorTokenId::getHeaderName),
+    HEADER5(5, "header5", AsciidoctorTokenId::getHeaderName),
+    HEADER6(6, "header6", AsciidoctorTokenId::getHeaderName),
+    CODE_BLOCK(Integer.MAX_VALUE, "code_block", (a, b, c) -> "Code"),
+    OTHER(Integer.MAX_VALUE, "other", (a, b, c) -> "Text");
 
     private static final Map<String, AsciidoctorTokenId> BY_CODE_NAMES;
 
@@ -37,10 +35,47 @@ public enum AsciidoctorTokenId implements TokenId {
         }
     }
 
+    private final int level;
     private final String codeName;
+    private final NameParser nameParser;
 
-    private AsciidoctorTokenId(String codeName) {
+    private AsciidoctorTokenId(int level, String codeName, NameParser nameParser) {
+        this.level = level;
         this.codeName = codeName;
+        this.nameParser = nameParser;
+    }
+
+    private static String getHeaderName(CharSequence str, int startOffset, int endOffset) {
+        int strLength = endOffset - startOffset;
+        if (strLength <= 0) {
+            return "";
+        }
+
+        int textStartIndex = findNonMatching(str, startOffset, endOffset, '=');
+        StringBuilder result = new StringBuilder(strLength);
+        result.append(str, textStartIndex, endOffset);
+        return result.toString().trim();
+    }
+
+    private static int findNonMatching(CharSequence str, int startOffset, int endOffset, char ch) {
+        for (int i = startOffset; i < endOffset; i++) {
+            if (str.charAt(i) != ch) {
+                return i;
+            }
+        }
+        return endOffset;
+    }
+
+    public String getName(CharSequence str, int startOffset, int endOffset) {
+        return nameParser.getName(str, startOffset, endOffset);
+    }
+
+    public boolean isGroupToken() {
+        return level != Integer.MAX_VALUE;
+    }
+
+    public int getLevel() {
+        return level;
     }
 
     public static AsciidoctorTokenId tryGetByCode(String codeName) {
@@ -83,5 +118,9 @@ public enum AsciidoctorTokenId implements TokenId {
 
     public static Language<AsciidoctorTokenId> language() {
         return LANGUAGE;
+    }
+
+    private interface NameParser {
+        public String getName(CharSequence str, int startOffset, int endOffset);
     }
 }

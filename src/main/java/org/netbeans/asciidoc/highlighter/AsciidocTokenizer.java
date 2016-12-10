@@ -4,14 +4,15 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Deque;
+import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import org.jtrim.utils.ExceptionHelper;
 
 public final class AsciidocTokenizer {
-    public Collection<AsciidoctorToken> readTokens(String input) {
+    public List<AsciidoctorToken> readTokens(CharSequence input) {
         try {
             return readTokens0(input);
         } catch (IOException ex) {
@@ -19,15 +20,17 @@ public final class AsciidocTokenizer {
         }
     }
 
-    public Collection<AsciidoctorToken> readTokens0(String input) throws IOException {
+    private List<AsciidoctorToken> readTokens0(CharSequence input) throws IOException {
+        int length = input.length();
+
         List<AsciidoctorToken> result = new ArrayList<>(128);
 
         Deque<InProgressToken> tokenQueue = new ArrayDeque<>();
-        InProgressToken root = new InProgressToken(AsciidoctorTokenId.OTHER, 0, input.length());
+        InProgressToken root = new InProgressToken(AsciidoctorTokenId.OTHER, 0, length);
         tokenQueue.push(root);
 
         int offset = 0;
-        for (String line: input.split("\n")) {
+        for (String line: splitByChar(input, '\n')) {
             if (line.startsWith("=")) {
                 AsciidoctorTokenId id = toHeaderTokenId(line);
                 addToken(new AsciidoctorToken(id, offset, offset + line.length()), tokenQueue, result);
@@ -41,7 +44,7 @@ public final class AsciidocTokenizer {
                     addToken(parent.tryGetRemainingToken(), tokenQueue, result);
                 }
                 else {
-                    tokenQueue.push(new InProgressToken(AsciidoctorTokenId.CODE_BLOCK, offset, input.length()));
+                    tokenQueue.push(new InProgressToken(AsciidoctorTokenId.CODE_BLOCK, offset, length));
                 }
             }
 
@@ -54,6 +57,52 @@ public final class AsciidocTokenizer {
         }
 
         return result;
+    }
+
+    private static Iterable<String> splitByChar(CharSequence input, char separator) {
+        return () -> splitByCharItr(input, separator);
+    }
+
+    private static Iterator<String> splitByCharItr(CharSequence input, char separator) {
+        return new Iterator<String>() {
+            private int offset = 0;
+
+            @Override
+            public boolean hasNext() {
+                return offset < input.length();
+            }
+
+            @Override
+            public String next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
+
+                int startOffset = offset;
+                int length = input.length();
+                char currentSeparator = separator;
+                for (int i = startOffset; i < length; i++) {
+                    if (input.charAt(i) == currentSeparator) {
+                        offset = i + 1;
+                        return subSequence(input, startOffset, i);
+                    }
+                }
+
+                offset = length;
+                return subSequence(input, startOffset, length);
+            }
+        };
+    }
+
+    private static String subSequence(CharSequence input, int start, int end) {
+        int length = end - start;
+        if (length <= 0) {
+            return "";
+        }
+
+        StringBuilder result = new StringBuilder(length);
+        result.append(input, start, end);
+        return result.toString();
     }
 
     private static AsciidoctorTokenId toHeaderTokenId(String line) {

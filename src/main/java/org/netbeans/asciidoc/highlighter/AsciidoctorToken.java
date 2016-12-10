@@ -31,4 +31,8 @@ public final class AsciidoctorToken {
     public int getEndIndex() {
         return endIndex;
     }
+
+    public String getName(CharSequence input) {
+        return id.getName(input, startIndex, endIndex);
+    }
 }
