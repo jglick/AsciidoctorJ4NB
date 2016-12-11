@@ -22,6 +22,14 @@ public final class AsciidocTokenizer {
         new GenericBlockParser(AsciidoctorTokenId.TEXT_BLOCK, '-', 2, false)
     };
 
+    private static final UnderlinedHeaderDef[] UNDERLINED_HEADER_DEFS = new UnderlinedHeaderDef[]{
+        new UnderlinedHeaderDef(AsciidoctorTokenId.HEADER1, '='),
+        new UnderlinedHeaderDef(AsciidoctorTokenId.HEADER2, '-'),
+        new UnderlinedHeaderDef(AsciidoctorTokenId.HEADER3, '~'),
+        new UnderlinedHeaderDef(AsciidoctorTokenId.HEADER4, '^'),
+        new UnderlinedHeaderDef(AsciidoctorTokenId.HEADER5, '+')
+    };
+
     private static InProgressToken tryStartBlock(String line, int offset) {
         for (BlockParser parser: BLOCK_PARSERS) {
             InProgressToken newBlock = parser.tryStartBlockToken(line, offset);
@@ -56,6 +64,14 @@ public final class AsciidocTokenizer {
             }
 
             if (parent.isAllowNestedBlocks()) {
+                AsciidoctorTokenId headerTokenId = tryGetUnderlinedHeaderId(line, lines.tryPeekNext());
+                if (headerTokenId != null) {
+                    String nextLine = lines.next();
+                    nextOffset += nextLine.length() + 1;
+                    addToken(new AsciidoctorToken(headerTokenId, offset, nextOffset - 1), tokenQueue, result);
+                    continue;
+                }
+
                 InProgressToken newBlock = tryStartBlock(line, offset);
                 if (newBlock != null) {
                     if (!parent.isAllowNestedBlocks()) {
@@ -66,8 +82,6 @@ public final class AsciidocTokenizer {
                     continue;
                 }
             }
-
-            // TODO: Add underlined header support
 
             AsciidoctorTokenId headerTokenId = tryGetHeaderTokenId(line, '=');
             if (headerTokenId != null) {
@@ -89,6 +103,16 @@ public final class AsciidocTokenizer {
         }
 
         return result;
+    }
+
+    private static AsciidoctorTokenId tryGetUnderlinedHeaderId(String line, String nextLine) {
+        for (UnderlinedHeaderDef def: UNDERLINED_HEADER_DEFS) {
+            AsciidoctorTokenId result = def.tryGetHeaderId(line, nextLine);
+            if (result != null) {
+                return result;
+            }
+        }
+        return null;
     }
 
     private static AsciidoctorTokenId tryGetHeaderTokenId(String line, char headerPrefix) {
@@ -144,6 +168,46 @@ public final class AsciidocTokenizer {
             }
         }
         result.add(token);
+    }
+
+    private static final class UnderlinedHeaderDef {
+        private static final int MAX_DIST = 2;
+
+        private final AsciidoctorTokenId id;
+        private final char underlineChar;
+
+        public UnderlinedHeaderDef(AsciidoctorTokenId id, char underlineChar) {
+            this.id = id;
+            this.underlineChar = underlineChar;
+        }
+
+        public AsciidoctorTokenId tryGetHeaderId(String line, String nextLine) {
+            if (nextLine == null) {
+                return null;
+            }
+
+            int underlineLength = countPrefixChars(nextLine, underlineChar);
+            if (underlineLength != nextLine.trim().length()) {
+                return null;
+            }
+
+            int diff = Math.abs(underlineLength - line.length());
+            if (diff <= MAX_DIST) {
+                return id;
+            }
+
+            diff = Math.abs(underlineLength - trimRight(line).length());
+            return diff <= MAX_DIST ? id : null;
+        }
+
+        private static String trimRight(String str) {
+            for (int i = str.length() - 1; i >= 0; i--) {
+                if (str.charAt(i) > ' ') {
+                    return str.substring(0, i + 1);
+                }
+            }
+            return "";
+        }
     }
 
     private static final class GenericBlockParser implements BlockParser {

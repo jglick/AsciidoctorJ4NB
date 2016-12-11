@@ -10,14 +10,29 @@ import static org.junit.Assert.*;
 
 public class AsciidocTokenizerTest {
     @Test
-    public void testReadTokens() throws Exception {
-        doTest("test1.adoc", (verifier) -> {
+    public void testSingleLineHeaders() throws Exception {
+        doTest("test_one_line_headers.adoc", (verifier) -> {
             verifier.verifyToken(AsciidoctorTokenId.OTHER, "something\n\n");
             verifier.verifyToken(AsciidoctorTokenId.HEADER2, "== First header 2");
             verifier.verifyToken(AsciidoctorTokenId.OTHER, "\n\nsection body line 1\nsection body line 2\n\n");
             verifier.verifyToken(AsciidoctorTokenId.HEADER2, "== Second header 2");
             verifier.verifyToken(AsciidoctorTokenId.OTHER, "\n\nsection body line 3\n\n");
             verifier.verifyToken(AsciidoctorTokenId.HEADER3, "=== Third header 3");
+            verifier.verifyToken(AsciidoctorTokenId.OTHER, "\n\n");
+            verifier.verifyToken(AsciidoctorTokenId.CODE_BLOCK, "----\nMy Test Code Block\n----");
+            verifier.verifyToken(AsciidoctorTokenId.OTHER, "\n\nfinal part\n");
+        });
+    }
+
+    @Test
+    public void testTwoLinesHeaders() throws Exception {
+        doTest("test_two_lines_headers.adoc", (verifier) -> {
+            verifier.verifyToken(AsciidoctorTokenId.OTHER, "something\n\n");
+            verifier.verifyToken(AsciidoctorTokenId.HEADER2, "First header 2\n--------------");
+            verifier.verifyToken(AsciidoctorTokenId.OTHER, "\n\nsection body line 1\nsection body line 2\n\n");
+            verifier.verifyToken(AsciidoctorTokenId.HEADER2, "Second header 2\n---------------");
+            verifier.verifyToken(AsciidoctorTokenId.OTHER, "\n\nsection body line 3\n\n");
+            verifier.verifyToken(AsciidoctorTokenId.HEADER3, "Third header 3\n~~~~~~~~~~~~~~");
             verifier.verifyToken(AsciidoctorTokenId.OTHER, "\n\n");
             verifier.verifyToken(AsciidoctorTokenId.CODE_BLOCK, "----\nMy Test Code Block\n----");
             verifier.verifyToken(AsciidoctorTokenId.OTHER, "\n\nfinal part\n");

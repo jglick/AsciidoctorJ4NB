@@ -53,9 +53,21 @@ public enum AsciidoctorTokenId implements TokenId {
         }
 
         int textStartIndex = findNonMatching(str, startOffset, endOffset, '=');
+        int textEndIndex = findEolIndex(str, textStartIndex, endOffset);
+
         StringBuilder result = new StringBuilder(strLength);
-        result.append(str, textStartIndex, endOffset);
+        result.append(str, textStartIndex, textEndIndex);
         return result.toString().trim();
+    }
+
+    private static int findEolIndex(CharSequence str, int startOffset, int endOffset) {
+        for (int i = startOffset; i < endOffset; i++) {
+            char ch = str.charAt(i);
+            if (ch == '\n' || ch == '\r') {
+                return i;
+            }
+        }
+        return endOffset;
     }
 
     private static int findNonMatching(CharSequence str, int startOffset, int endOffset, char ch) {
