@@ -13,7 +13,7 @@
                     <folder name="NetBeans">
                         <folder name="Defaults">
                             <file name="FontAndColors.xml" url="FontAndColors.xml">
-                                <attr name="displayName" bundlevalue="org.netbeans.asciidoc.Bundle#ASCIIDOCTOR_NAME"/>
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.asciidoc.Bundle"/>
                             </file>
                         </folder>
                     </folder>
