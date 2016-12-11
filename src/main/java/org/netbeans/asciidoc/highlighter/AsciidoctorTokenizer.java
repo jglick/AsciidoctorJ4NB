@@ -11,7 +11,7 @@ import org.netbeans.asciidoc.util.PeekableIterator;
 import org.netbeans.asciidoc.util.SimpleCharacterStream;
 import org.netbeans.asciidoc.util.StringSplitters;
 
-public final class AsciidocTokenizer {
+public final class AsciidoctorTokenizer {
     private static final BlockParser[] BLOCK_PARSERS = new BlockParser[]{
         new GenericBlockParser(AsciidoctorTokenId.CODE_BLOCK, '-', 4, false),
         new GenericBlockParser(AsciidoctorTokenId.TEXT_BLOCK, '/', 4, false),

@@ -15,12 +15,12 @@ import org.netbeans.modules.parsing.spi.SourceModificationEvent;
 public final class AsciidoctorParser extends Parser {
     private static final Logger LOGGER = Logger.getLogger(AsciidoctorParser.class.getName());
 
-    private final AsciidocTokenizer tokenizer;
+    private final AsciidoctorTokenizer tokenizer;
     private Snapshot snapshot;
     private List<AsciidoctorToken> tokens;
 
     public AsciidoctorParser() {
-        this.tokenizer = new AsciidocTokenizer();
+        this.tokenizer = new AsciidoctorTokenizer();
         this.tokens = Collections.emptyList();
     }
 

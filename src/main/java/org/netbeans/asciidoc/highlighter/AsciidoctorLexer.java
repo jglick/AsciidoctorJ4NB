@@ -15,12 +15,12 @@ public final class AsciidoctorLexer implements Lexer<AsciidoctorTokenId> {
     private static final Logger LOGGER = Logger.getLogger(AsciidoctorLexer.class.getName());
 
     private final LexerRestartInfo<AsciidoctorTokenId> info;
-    private final AsciidocTokenizer tokenizer;
+    private final AsciidoctorTokenizer tokenizer;
     private Iterator<AsciidoctorToken> tokensItr;
 
     private AsciidoctorLexer(LexerRestartInfo<AsciidoctorTokenId> info) {
         this.info = Objects.requireNonNull(info, "info");
-        this.tokenizer = new AsciidocTokenizer();
+        this.tokenizer = new AsciidoctorTokenizer();
         this.tokensItr = null;
     }
 

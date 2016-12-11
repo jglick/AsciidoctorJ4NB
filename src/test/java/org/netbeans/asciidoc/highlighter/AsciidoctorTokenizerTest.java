@@ -8,7 +8,7 @@ import org.netbeans.asciidoc.util.ConstSimpleCharacterStream;
 
 import static org.junit.Assert.*;
 
-public class AsciidocTokenizerTest {
+public class AsciidoctorTokenizerTest {
     @Test
     public void testSingleLineHeaders() throws Exception {
         doTest("test_one_line_headers.adoc", (verifier) -> {
@@ -41,7 +41,7 @@ public class AsciidocTokenizerTest {
 
     private void doTest(String asciidocPath, TokenizerResultVerifier resultVerifier) throws Exception {
         String input = ResourceUtils.readResource(getClass(), asciidocPath);
-        AsciidocTokenizer tokenizer = new AsciidocTokenizer();
+        AsciidoctorTokenizer tokenizer = new AsciidoctorTokenizer();
 
         List<AsciidoctorToken> tokens = tokenizer.readTokens(new ConstSimpleCharacterStream(input));
         TokenVerifier verifier = new TokenVerifier(input, tokens);
