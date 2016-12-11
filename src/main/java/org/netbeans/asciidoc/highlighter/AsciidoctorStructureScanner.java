@@ -6,6 +6,8 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 import org.netbeans.modules.csl.api.ElementHandle;
 import org.netbeans.modules.csl.api.ElementKind;
@@ -17,15 +19,22 @@ import org.netbeans.modules.csl.api.StructureScanner;
 import org.netbeans.modules.csl.spi.ParserResult;
 
 public final class AsciidoctorStructureScanner implements StructureScanner {
+    private static final Logger LOGGER = Logger.getLogger(AsciidoctorStructureScanner.class.getName());
+
     public AsciidoctorStructureScanner() {
     }
 
     @Override
     public List<? extends StructureItem> scan(ParserResult info) {
         if (info instanceof AsciidoctorParserResult) {
-            AsciidoctorParserResult result = (AsciidoctorParserResult)info;
-            List<AsciidoctorToken> tokens = result.getTokens();
-            return toStructureItems(info.getSnapshot().getText(), tokens);
+            try {
+                AsciidoctorParserResult result = (AsciidoctorParserResult)info;
+                List<AsciidoctorToken> tokens = result.getTokens();
+                return toStructureItems(info.getSnapshot().getText(), tokens);
+            } catch (Exception ex) {
+                LOGGER.log(Level.INFO, "Internal error: Failed to create structured tree from tokens.", ex);
+                return Collections.emptyList();
+            }
         }
         else {
             return Collections.emptyList();

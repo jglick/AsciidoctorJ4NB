@@ -1,13 +1,19 @@
 package org.netbeans.asciidoc.highlighter;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.spi.lexer.Lexer;
+import org.netbeans.spi.lexer.LexerInput;
 import org.netbeans.spi.lexer.LexerRestartInfo;
 
 public final class AsciidoctorLexer implements Lexer<AsciidoctorTokenId> {
+    private static final Logger LOGGER = Logger.getLogger(AsciidoctorLexer.class.getName());
+
     private final LexerRestartInfo<AsciidoctorTokenId> info;
     private final AsciidocTokenizer tokenizer;
     private Iterator<AsciidoctorToken> tokensItr;
@@ -46,6 +52,18 @@ public final class AsciidoctorLexer implements Lexer<AsciidoctorTokenId> {
     }
 
     private Collection<AsciidoctorToken> readTokens() {
-        return tokenizer.readTokens(info.input()::read);
+        LexerInput input = info.input();
+        try {
+            return tokenizer.readTokens(input::read);
+        } catch (Exception ex) {
+            LOGGER.log(Level.INFO, "Internal error: Tokenizer failed to read tokens.", ex);
+
+            int count = input.readLength();
+            while (input.read() != LexerInput.EOF) {
+                count++;
+            }
+
+            return Collections.singletonList(new AsciidoctorToken(AsciidoctorTokenId.OTHER, 0, count));
+        }
     }
 }

@@ -2,6 +2,8 @@ package org.netbeans.asciidoc.highlighter;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.event.ChangeListener;
 import org.netbeans.asciidoc.util.ConstSimpleCharacterStream;
 import org.netbeans.modules.parsing.api.Snapshot;
@@ -11,6 +13,8 @@ import org.netbeans.modules.parsing.spi.Parser;
 import org.netbeans.modules.parsing.spi.SourceModificationEvent;
 
 public final class AsciidoctorParser extends Parser {
+    private static final Logger LOGGER = Logger.getLogger(AsciidoctorParser.class.getName());
+
     private final AsciidocTokenizer tokenizer;
     private Snapshot snapshot;
     private List<AsciidoctorToken> tokens;
@@ -23,7 +27,16 @@ public final class AsciidoctorParser extends Parser {
     @Override
     public void parse(Snapshot snapshot, Task task, SourceModificationEvent event) throws ParseException {
         this.snapshot = snapshot;
-        this.tokens = tokenizer.readTokens(new ConstSimpleCharacterStream(snapshot.getText()));
+        this.tokens = getTokens(snapshot.getText());
+    }
+
+    private List<AsciidoctorToken> getTokens(CharSequence input) {
+        try {
+            return tokenizer.readTokens(new ConstSimpleCharacterStream(input));
+        } catch (Exception ex) {
+            LOGGER.log(Level.INFO, "Internal error: Tokenizer failed to read tokens.", ex);
+            return Collections.emptyList();
+        }
     }
 
     @Override
