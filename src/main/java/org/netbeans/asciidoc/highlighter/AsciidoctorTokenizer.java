@@ -156,14 +156,14 @@ public final class AsciidoctorTokenizer {
             AsciidoctorToken token,
             Deque<InProgressToken> tokenQueue,
             List<AsciidoctorToken> result) {
-        if (token == null) {
+        if (token == null || token.getLength() <= 0) {
             return;
         }
 
         InProgressToken parent = tokenQueue.peekFirst();
         if (parent != null) {
             AsciidoctorToken parentPartToken = parent.consume(token.getStartIndex(), token.getEndIndex());
-            if (parentPartToken != null) {
+            if (parentPartToken != null && parentPartToken.getLength() > 0) {
                 result.add(parentPartToken);
             }
         }

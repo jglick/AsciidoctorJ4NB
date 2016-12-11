@@ -89,6 +89,10 @@ public class AsciidoctorTokenizerTest {
                             + " was expected to start at " + expectedStart
                             + " but it starts at " + token.getStartIndex());
                 }
+                if (token.getLength() <= 0) {
+                    throw new AssertionError("Token " + token.getId()
+                            + " must have a greater than zero length: " + token.getLength());
+                }
                 expectedStart = token.getEndIndex();
             }
 
