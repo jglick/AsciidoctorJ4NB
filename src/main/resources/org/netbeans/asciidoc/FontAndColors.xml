@@ -7,6 +7,7 @@
     <fontcolor name='blockquote' default='comment' />
     <fontcolor name='bulletlist' default='keyword' />
     <fontcolor name='code_block' default='comment' />
+    <fontcolor name='text_block' default='comment' />
     <fontcolor name='emph'>
         <font style="italic"/>
     </fontcolor>

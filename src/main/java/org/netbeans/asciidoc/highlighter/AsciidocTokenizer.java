@@ -12,6 +12,26 @@ import org.netbeans.asciidoc.util.SimpleCharacterStream;
 import org.netbeans.asciidoc.util.StringSplitters;
 
 public final class AsciidocTokenizer {
+    private static final BlockParser[] BLOCK_PARSERS = new BlockParser[]{
+        new GenericBlockParser(AsciidoctorTokenId.CODE_BLOCK, '-', 4, false),
+        new GenericBlockParser(AsciidoctorTokenId.TEXT_BLOCK, '/', 4, false),
+        new GenericBlockParser(AsciidoctorTokenId.TEXT_BLOCK, '+', 4, false),
+        new GenericBlockParser(AsciidoctorTokenId.TEXT_BLOCK, '.', 4, false),
+        new GenericBlockParser(AsciidoctorTokenId.TEXT_BLOCK, '_', 4, false),
+        new GenericBlockParser(AsciidoctorTokenId.TEXT_BLOCK, '=', 4, false),
+        new GenericBlockParser(AsciidoctorTokenId.TEXT_BLOCK, '-', 2, false)
+    };
+
+    private static InProgressToken tryStartBlock(String line, int offset) {
+        for (BlockParser parser: BLOCK_PARSERS) {
+            InProgressToken newBlock = parser.tryStartBlockToken(line, offset);
+            if (newBlock != null) {
+                return newBlock;
+            }
+        }
+        return null;
+    }
+
     public List<AsciidoctorToken> readTokens(SimpleCharacterStream input) {
         List<AsciidoctorToken> result = new ArrayList<>(128);
 
@@ -19,36 +39,47 @@ public final class AsciidocTokenizer {
         InProgressToken root = new InProgressToken(AsciidoctorTokenId.OTHER, 0, Integer.MAX_VALUE);
         tokenQueue.push(root);
 
-        int offset = 0;
+        int nextOffset = 0;
         PeekableIterator<String> lines = StringSplitters.splitByChar('\n', input);
         while (lines.hasNext()) {
+            int offset = nextOffset;
             String line = lines.next();
+            nextOffset = offset + line.length() + 1;
 
-            if (line.startsWith("=")) {
-                AsciidoctorTokenId id = toHeaderTokenId(line);
-                addToken(new AsciidoctorToken(id, offset, offset + line.length()), tokenQueue, result);
-            }
-            else if (line.startsWith("----")) {
-                InProgressToken parent = tokenQueue.peekFirst();
-                if (parent.id == AsciidoctorTokenId.CODE_BLOCK) {
-                    tokenQueue.pop();
-                    parent.setEndIndex(offset + line.length());
+            InProgressToken parent = tokenQueue.peekFirst();
+            if (parent.isClosingLine(line)) {
+                tokenQueue.pop();
+                parent.setEndIndex(offset + line.length());
 
-                    addToken(parent.tryGetRemainingToken(), tokenQueue, result);
-                }
-                else {
-                    tokenQueue.push(new InProgressToken(AsciidoctorTokenId.CODE_BLOCK, offset, Integer.MAX_VALUE));
-                }
+                addToken(parent.tryGetRemainingToken(), tokenQueue, result);
+                continue;
             }
 
-            offset += line.length() + 1;
+            if (parent.isAllowNestedBlocks()) {
+                InProgressToken newBlock = tryStartBlock(line, offset);
+                if (newBlock != null) {
+                    if (!parent.isAllowNestedBlocks()) {
+                        newBlock.setAllowNestedBlocks(false);
+                    }
+
+                    tokenQueue.push(newBlock);
+                    continue;
+                }
+            }
+
+            // TODO: Add underlined header support
+
+            AsciidoctorTokenId headerTokenId = tryGetHeaderTokenId(line, '=');
+            if (headerTokenId != null) {
+                addToken(new AsciidoctorToken(headerTokenId, offset, offset + line.length()), tokenQueue, result);
+            }
         }
 
-        if (offset == 0) {
+        if (nextOffset == 0) {
             return Collections.emptyList();
         }
 
-        int length = offset - 1;
+        int length = nextOffset - 1;
 
         while (!tokenQueue.isEmpty()) {
             InProgressToken token = tokenQueue.pop();
@@ -60,8 +91,17 @@ public final class AsciidocTokenizer {
         return result;
     }
 
-    private static AsciidoctorTokenId toHeaderTokenId(String line) {
-        switch (countPrefixChars(line, '=')) {
+    private static AsciidoctorTokenId tryGetHeaderTokenId(String line, char headerPrefix) {
+        int headerIndex = countPrefixChars(line, headerPrefix);
+        if (headerIndex <= 0) {
+            return null;
+        }
+
+        if (headerIndex == line.trim().length()) {
+            return null;
+        }
+
+        switch (headerIndex) {
             case 1:
                 return AsciidoctorTokenId.HEADER1;
             case 2:
@@ -106,17 +146,96 @@ public final class AsciidocTokenizer {
         result.add(token);
     }
 
+    private static final class GenericBlockParser implements BlockParser {
+        private final AsciidoctorTokenId id;
+        private final char blockGuardChar;
+        private final int minGuardChars;
+        private final boolean allowNestedBlocks;
+
+        public GenericBlockParser(
+                AsciidoctorTokenId id,
+                char blockGuardChar,
+                int minGuardChars,
+                boolean allowNestedBlocks) {
+            this.id = id;
+            this.blockGuardChar = blockGuardChar;
+            this.minGuardChars = minGuardChars;
+            this.allowNestedBlocks = allowNestedBlocks;
+        }
+
+        @Override
+        public InProgressToken tryStartBlockToken(String line, int startIndex) {
+            if (!isGuardLine(line, blockGuardChar, minGuardChars)) {
+                return null;
+            }
+
+            return new InProgressToken(id, startIndex, Integer.MAX_VALUE, allowNestedBlocks, (String closeLine) -> {
+                return isGuardLine(closeLine, blockGuardChar, minGuardChars);
+            });
+        }
+
+        private static boolean isGuardLine(String line, char blockGuardChar, int minGuardChars) {
+            if (line.isEmpty()) {
+                return false;
+            }
+
+            char firstCh = line.charAt(0);
+            if (firstCh != blockGuardChar) {
+                return false;
+            }
+
+            int guardCharCount = countPrefixChars(line, firstCh);
+            if (guardCharCount < minGuardChars) {
+                return false;
+            }
+
+            return line.trim().length() == guardCharCount;
+        }
+    }
+
+    private interface BlockParser {
+        public InProgressToken tryStartBlockToken(String line, int startIndex);
+    }
+
+    private interface BlockTokenCloser {
+        public boolean isClosingLine(String line);
+    }
+
     private static final class InProgressToken {
         private final AsciidoctorTokenId id;
         private int startIndex;
         private int endIndex;
+        private boolean allowNestedBlocks;
+
+        private final BlockTokenCloser blockCloser;
 
         public InProgressToken(AsciidoctorTokenId id, int startIndex, int endIndex) {
+            this(id, startIndex, endIndex, true, null);
+        }
+
+        public InProgressToken(
+                AsciidoctorTokenId id,
+                int startIndex,
+                int endIndex,
+                boolean allowNestedBlocks,
+                BlockTokenCloser blockCloser) {
             ExceptionHelper.checkArgumentInRange(endIndex, startIndex, Integer.MAX_VALUE, "endIndex");
 
             this.id = Objects.requireNonNull(id, "id");
             this.startIndex = startIndex;
             this.endIndex = endIndex;
+            this.allowNestedBlocks = allowNestedBlocks;
+            this.blockCloser = blockCloser;
+        }
+
+        public boolean isClosingLine(String line) {
+            return blockCloser != null
+                    ? blockCloser.isClosingLine(line)
+                    : false;
+        }
+
+        public boolean isAllowNestedBlocks() {
+            return allowNestedBlocks;
         }
 
         public AsciidoctorToken tryGetRemainingToken() {
@@ -129,6 +248,10 @@ public final class AsciidocTokenizer {
 
         public void setEndIndex(int newEndIndex) {
             this.endIndex = newEndIndex;
+        }
+
+        public void setAllowNestedBlocks(boolean allowNestedBlocks) {
+            this.allowNestedBlocks = allowNestedBlocks;
         }
 
         public AsciidoctorToken consume(int from, int to) {

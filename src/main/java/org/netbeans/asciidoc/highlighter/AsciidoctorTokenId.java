@@ -22,6 +22,7 @@ public enum AsciidoctorTokenId implements TokenId {
     HEADER5(5, "header5", AsciidoctorTokenId::getHeaderName),
     HEADER6(6, "header6", AsciidoctorTokenId::getHeaderName),
     CODE_BLOCK(Integer.MAX_VALUE, "code_block", (a, b, c) -> "Code"),
+    TEXT_BLOCK(Integer.MAX_VALUE, "text_block", (a, b, c) -> "Text Block"),
     OTHER(Integer.MAX_VALUE, "other", (a, b, c) -> "Text");
 
     private static final Map<String, AsciidoctorTokenId> BY_CODE_NAMES;
