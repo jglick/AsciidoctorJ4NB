@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
@@ -21,12 +22,10 @@ public final class AsciidocTokenizer {
     }
 
     private List<AsciidoctorToken> readTokens0(CharSequence input) throws IOException {
-        int length = input.length();
-
         List<AsciidoctorToken> result = new ArrayList<>(128);
 
         Deque<InProgressToken> tokenQueue = new ArrayDeque<>();
-        InProgressToken root = new InProgressToken(AsciidoctorTokenId.OTHER, 0, length);
+        InProgressToken root = new InProgressToken(AsciidoctorTokenId.OTHER, 0, Integer.MAX_VALUE);
         tokenQueue.push(root);
 
         int offset = 0;
@@ -44,15 +43,23 @@ public final class AsciidocTokenizer {
                     addToken(parent.tryGetRemainingToken(), tokenQueue, result);
                 }
                 else {
-                    tokenQueue.push(new InProgressToken(AsciidoctorTokenId.CODE_BLOCK, offset, length));
+                    tokenQueue.push(new InProgressToken(AsciidoctorTokenId.CODE_BLOCK, offset, Integer.MAX_VALUE));
                 }
             }
 
             offset += line.length() + 1;
         }
 
+        if (offset == 0) {
+            return Collections.emptyList();
+        }
+
+        int length = input.length();
+
         while (!tokenQueue.isEmpty()) {
             InProgressToken token = tokenQueue.pop();
+            token.setEndIndex(length);
+
             addToken(token.tryGetRemainingToken(), tokenQueue, result);
         }
 
