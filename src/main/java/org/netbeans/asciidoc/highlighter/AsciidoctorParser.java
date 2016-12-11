@@ -3,6 +3,7 @@ package org.netbeans.asciidoc.highlighter;
 import java.util.Collections;
 import java.util.List;
 import javax.swing.event.ChangeListener;
+import org.netbeans.asciidoc.util.ConstSimpleCharacterStream;
 import org.netbeans.modules.parsing.api.Snapshot;
 import org.netbeans.modules.parsing.api.Task;
 import org.netbeans.modules.parsing.spi.ParseException;
@@ -22,7 +23,7 @@ public final class AsciidoctorParser extends Parser {
     @Override
     public void parse(Snapshot snapshot, Task task, SourceModificationEvent event) throws ParseException {
         this.snapshot = snapshot;
-        this.tokens = tokenizer.readTokens(snapshot.getText());
+        this.tokens = tokenizer.readTokens(new ConstSimpleCharacterStream(snapshot.getText()));
     }
 
     @Override

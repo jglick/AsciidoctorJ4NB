@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.Objects;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.spi.lexer.Lexer;
-import org.netbeans.spi.lexer.LexerInput;
 import org.netbeans.spi.lexer.LexerRestartInfo;
 
 public final class AsciidoctorLexer implements Lexer<AsciidoctorTokenId> {
@@ -47,19 +46,6 @@ public final class AsciidoctorLexer implements Lexer<AsciidoctorTokenId> {
     }
 
     private Collection<AsciidoctorToken> readTokens() {
-        String input = readAll(info.input());
-        return tokenizer.readTokens(input);
-    }
-
-    private static String readAll(LexerInput lexerInput) {
-        StringBuilder sb = new StringBuilder();
-        while (true) {
-            int chInt = lexerInput.read();
-            if (chInt == LexerInput.EOF) {
-                break;
-            }
-            sb.append((char)chInt);
-        }
-        return sb.toString();
+        return tokenizer.readTokens(info.input()::read);
     }
 }

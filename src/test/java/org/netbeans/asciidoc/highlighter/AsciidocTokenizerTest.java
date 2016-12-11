@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import org.junit.Test;
+import org.netbeans.asciidoc.util.ConstSimpleCharacterStream;
 
 import static org.junit.Assert.*;
 
@@ -27,7 +28,7 @@ public class AsciidocTokenizerTest {
         String input = ResourceUtils.readResource(getClass(), asciidocPath);
         AsciidocTokenizer tokenizer = new AsciidocTokenizer();
 
-        List<AsciidoctorToken> tokens = tokenizer.readTokens(input);
+        List<AsciidoctorToken> tokens = tokenizer.readTokens(new ConstSimpleCharacterStream(input));
         TokenVerifier verifier = new TokenVerifier(input, tokens);
 
         resultVerifier.verify(verifier);
