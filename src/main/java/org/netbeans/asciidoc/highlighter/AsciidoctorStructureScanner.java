@@ -59,15 +59,15 @@ public final class AsciidoctorStructureScanner implements StructureScanner {
             int level = id.getLevel();
             if (level <= currentLevel) {
                 List<StructureItem> children = toStructureItems(input, tokens.subList(startIndex + 1, i));
-                result.add(new HierarchicalStructureItem(input, tokens.get(startIndex), children));
+                result.add(new HierarchicalStructureItem(input, tokens.get(startIndex), children, token.getStartIndex()));
 
                 startIndex = i;
-                currentLevel = tokens.get(startIndex).getId().getLevel();
+                currentLevel = token.getId().getLevel();
             }
         }
 
         List<StructureItem> children = toStructureItems(input, tokens.subList(startIndex + 1, tokenCount));
-        result.add(new HierarchicalStructureItem(input, tokens.get(startIndex), children));
+        result.add(new HierarchicalStructureItem(input, tokens.get(startIndex), children, input.length()));
 
         return result;
     }
@@ -88,14 +88,19 @@ public final class AsciidoctorStructureScanner implements StructureScanner {
         private final AsciidoctorToken token;
         private final List<StructureItem> children;
 
+        private final long endPosition;
+
         public HierarchicalStructureItem(
                 CharSequence input,
                 AsciidoctorToken token,
-                List<StructureItem> children) {
+                List<StructureItem> children,
+                long siblingStartPosition) {
 
             this.name = token.getName(input);
             this.token = token;
             this.children = Collections.unmodifiableList(children);
+
+            this.endPosition = Math.max(token.getEndIndex(), siblingStartPosition) - 1;
         }
 
         @Override
@@ -146,7 +151,7 @@ public final class AsciidoctorStructureScanner implements StructureScanner {
 
         @Override
         public long getEndPosition() {
-            return token.getEndIndex();
+            return endPosition;
         }
 
         @Override
