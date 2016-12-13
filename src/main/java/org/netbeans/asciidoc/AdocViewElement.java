@@ -26,7 +26,7 @@ import org.openide.windows.TopComponent;
         preferredID = "AdocVisual",
         position = 2000
 )
-@Messages("LBL_ASCIIDOC_VISUAL=Visual")
+@Messages("LBL_ASCIIDOC_VISUAL=Preview")
 public final class AdocViewElement implements MultiViewElement {
     private final AdocDataObject obj;
 
