@@ -1,7 +1,9 @@
 package org.netbeans.asciidoc.highlighter;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -47,27 +49,38 @@ public final class AsciidoctorStructureScanner implements StructureScanner {
         }
 
         List<StructureItem> result = new ArrayList<>();
+        Deque<HierarchicalStructureItem> parents = new ArrayDeque<>();
 
-        // FIXME: This alg is quadratic.
+        tokens.forEach((token) -> {
+            HierarchicalStructureItem current = new HierarchicalStructureItem(input, token);
 
-        int startIndex = 0;
-        int currentLevel = tokens.get(0).getId().getLevel();
-        int tokenCount = tokens.size();
-        for (int i = 1; i < tokenCount; i++) {
-            AsciidoctorToken token = tokens.get(i);
-            AsciidoctorTokenId id = token.getId();
-            int level = id.getLevel();
-            if (level <= currentLevel) {
-                List<StructureItem> children = toStructureItems(input, tokens.subList(startIndex + 1, i));
-                result.add(new HierarchicalStructureItem(input, tokens.get(startIndex), children, token.getStartIndex()));
+            int currentLevel = token.getId().getLevel();
 
-                startIndex = i;
-                currentLevel = token.getId().getLevel();
+            HierarchicalStructureItem parent = null;
+            while (true) {
+                parent = parents.peekFirst();
+                if (parent == null) {
+                    break;
+                }
+
+                int parentLevel = parent.token.getId().getLevel();
+                if (parentLevel < currentLevel) {
+                    break;
+                }
+
+                parent.setEndPosition(current.getPosition() - 1);
+                parents.pop();
             }
-        }
 
-        List<StructureItem> children = toStructureItems(input, tokens.subList(startIndex + 1, tokenCount));
-        result.add(new HierarchicalStructureItem(input, tokens.get(startIndex), children, input.length()));
+            if (parent == null) {
+                result.add(current);
+            }
+            else {
+                parent.addChild(current);
+            }
+
+            parents.push(current);
+        });
 
         return result;
     }
@@ -87,20 +100,25 @@ public final class AsciidoctorStructureScanner implements StructureScanner {
         private final String name;
         private final AsciidoctorToken token;
         private final List<StructureItem> children;
+        private final List<StructureItem> childrenView;
 
-        private final long endPosition;
+        private long endPosition;
 
-        public HierarchicalStructureItem(
-                CharSequence input,
-                AsciidoctorToken token,
-                List<StructureItem> children,
-                long siblingStartPosition) {
-
+        public HierarchicalStructureItem(CharSequence input, AsciidoctorToken token) {
             this.name = token.getName(input);
             this.token = token;
-            this.children = Collections.unmodifiableList(children);
+            this.children = new ArrayList<>();
+            this.childrenView = Collections.unmodifiableList(this.children);
 
-            this.endPosition = Math.max(token.getEndIndex(), siblingStartPosition) - 1;
+            this.endPosition = input.length() - 1;
+        }
+
+        private void setEndPosition(long endPosition) {
+            this.endPosition = endPosition;
+        }
+
+        private void addChild(StructureItem child) {
+            children.add(child);
         }
 
         @Override
@@ -141,7 +159,7 @@ public final class AsciidoctorStructureScanner implements StructureScanner {
 
         @Override
         public List<? extends StructureItem> getNestedItems() {
-            return children;
+            return childrenView;
         }
 
         @Override
