@@ -41,6 +41,7 @@ public final class AdocVisualPanel extends JPanel {
 
         initComponents();
 
+        Platform.setImplicitExit(false);
         jfxPanel = new JFXPanel();
         add(jfxPanel);
     }
