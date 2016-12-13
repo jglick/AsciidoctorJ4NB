@@ -14,16 +14,18 @@ import org.netbeans.spi.lexer.LanguageHierarchy;
 import org.netbeans.spi.lexer.Lexer;
 import org.netbeans.spi.lexer.LexerRestartInfo;
 
+import static org.netbeans.asciidoc.highlighter.AsciidoctorFoldTypeProvider.*;
+
 public enum AsciidoctorTokenId implements TokenId {
-    HEADER1(1, "header1", AsciidoctorTokenId::getHeaderName),
-    HEADER2(2, "header2", AsciidoctorTokenId::getHeaderName),
-    HEADER3(3, "header3", AsciidoctorTokenId::getHeaderName),
-    HEADER4(4, "header4", AsciidoctorTokenId::getHeaderName),
-    HEADER5(5, "header5", AsciidoctorTokenId::getHeaderName),
-    HEADER6(6, "header6", AsciidoctorTokenId::getHeaderName),
-    CODE_BLOCK(Integer.MAX_VALUE, "code_block", (a, b, c) -> "Code"),
-    TEXT_BLOCK(Integer.MAX_VALUE, "text_block", (a, b, c) -> "Text Block"),
-    OTHER(Integer.MAX_VALUE, "other", (a, b, c) -> "Text");
+    HEADER1(1, TYPE_HEADER.code(), "header1", AsciidoctorTokenId::getHeaderName),
+    HEADER2(2, TYPE_HEADER.code(), "header2", AsciidoctorTokenId::getHeaderName),
+    HEADER3(3, TYPE_HEADER.code(), "header3", AsciidoctorTokenId::getHeaderName),
+    HEADER4(4, TYPE_HEADER.code(), "header4", AsciidoctorTokenId::getHeaderName),
+    HEADER5(5, TYPE_HEADER.code(), "header5", AsciidoctorTokenId::getHeaderName),
+    HEADER6(6, TYPE_HEADER.code(), "header6", AsciidoctorTokenId::getHeaderName),
+    CODE_BLOCK(Integer.MAX_VALUE, TYPE_TEXT_BLOCK.code(), "code_block", (a, b, c) -> "Code"),
+    TEXT_BLOCK(Integer.MAX_VALUE, TYPE_TEXT_BLOCK.code(), "text_block", (a, b, c) -> "Text Block"),
+    OTHER(Integer.MAX_VALUE, null, "other", (a, b, c) -> "Text");
 
     private static final Map<String, AsciidoctorTokenId> BY_CODE_NAMES;
 
@@ -37,11 +39,13 @@ public enum AsciidoctorTokenId implements TokenId {
     }
 
     private final int level;
+    private final String foldGroup;
     private final String codeName;
     private final NameParser nameParser;
 
-    private AsciidoctorTokenId(int level, String codeName, NameParser nameParser) {
+    private AsciidoctorTokenId(int level, String foldGroup, String codeName, NameParser nameParser) {
         this.level = level;
+        this.foldGroup = foldGroup;
         this.codeName = codeName;
         this.nameParser = nameParser;
     }
@@ -81,6 +85,10 @@ public enum AsciidoctorTokenId implements TokenId {
 
     public String getName(CharSequence str, int startOffset, int endOffset) {
         return nameParser.getName(str, startOffset, endOffset);
+    }
+
+    public String tryGetFoldGroup() {
+        return foldGroup;
     }
 
     public boolean isTableOfContentToken() {

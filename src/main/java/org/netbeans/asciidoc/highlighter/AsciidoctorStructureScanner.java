@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -67,7 +68,7 @@ public final class AsciidoctorStructureScanner implements StructureScanner {
                     break;
                 }
 
-                int parentLevel = parent.token.getId().getLevel();
+                int parentLevel = parent.getLevel();
                 if (parentLevel < currentLevel) {
                     break;
                 }
@@ -91,8 +92,85 @@ public final class AsciidoctorStructureScanner implements StructureScanner {
 
     @Override
     public Map<String, List<OffsetRange>> folds(ParserResult info) {
-        // TODO: Implement
-        return Collections.emptyMap();
+        if (info instanceof AsciidoctorParserResult) {
+            try {
+                AsciidoctorParserResult result = (AsciidoctorParserResult)info;
+                List<AsciidoctorToken> tokens = result.getTokens();
+                return folds(result.getSnapshot().getText().length(), tokens);
+            } catch (Exception ex) {
+                LOGGER.log(Level.INFO, "Internal error: Failed to create folds from tokens.", ex);
+                return Collections.emptyMap();
+            }
+        }
+        else {
+            return Collections.emptyMap();
+        }
+    }
+
+    private static <K, V> List<V> getKeyList(Map<K, List<V>> map, K key) {
+        return map.computeIfAbsent(key, (currentKey) -> new ArrayList<>());
+    }
+
+    private Map<String, List<OffsetRange>> folds(int inputSize, List<AsciidoctorToken> tokens) {
+        Map<String, List<OffsetRange>> result = new HashMap<>();
+
+        Deque<AsciidoctorToken> parents = new ArrayDeque<>();
+
+        tokens.forEach((token) -> {
+            AsciidoctorTokenId id = token.getId();
+            String foldGroup = id.tryGetFoldGroup();
+            if (foldGroup != null) {
+                if (id.isTableOfContentToken()) {
+                    while (true) {
+                        AsciidoctorToken parent = parents.peekFirst();
+                        if (parent == null || parent.getId().getLevel() < id.getLevel()) {
+                            break;
+                        }
+
+                        parents.pop();
+                        addFold(parent, parent.getEndIndex(), token.getStartIndex(), result);
+                    }
+
+                    parents.push(token);
+                }
+                else {
+                    getKeyList(result, foldGroup).add(new OffsetRange(token.getStartIndex(), token.getEndIndex()));
+                }
+            }
+        });
+
+        while (!parents.isEmpty()) {
+            AsciidoctorToken token = parents.pop();
+            addFold(token, token.getEndIndex(), inputSize, result);
+        }
+
+        return result;
+    }
+
+    private static void addFold(
+            AsciidoctorToken token,
+            int startIndex,
+            int endIndex,
+            Map<String, List<OffsetRange>> result) {
+        addFold(token.getId(), startIndex, endIndex, result);
+    }
+
+    private static void addFold(
+            AsciidoctorTokenId id,
+            int startIndex,
+            int endIndex,
+            Map<String, List<OffsetRange>> result) {
+
+        if (startIndex >= endIndex) {
+            return;
+        }
+
+        String foldGroup = id.tryGetFoldGroup();
+        if (foldGroup == null) {
+            return;
+        }
+
+        getKeyList(result, foldGroup).add(new OffsetRange(startIndex, endIndex));
     }
 
     @Override
@@ -123,6 +201,10 @@ public final class AsciidoctorStructureScanner implements StructureScanner {
 
         private void addChild(StructureItem child) {
             children.add(child);
+        }
+
+        public int getLevel() {
+            return token.getId().getLevel();
         }
 
         @Override
