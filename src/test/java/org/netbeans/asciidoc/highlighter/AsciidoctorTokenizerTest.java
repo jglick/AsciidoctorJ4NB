@@ -10,6 +10,26 @@ import static org.junit.Assert.*;
 
 public class AsciidoctorTokenizerTest {
     @Test
+    public void testEmptyInput() throws Exception {
+        doTestWithInput("", (verifier) -> {
+        });
+    }
+
+    @Test
+    public void testSingleLineWithHeader() throws Exception {
+        doTestWithInput("=== Test Header 3", (verifier) -> {
+            verifier.verifyToken(AsciidoctorTokenId.HEADER3, "=== Test Header 3");
+        });
+    }
+
+    @Test
+    public void testSingleLineWithTextOnly() throws Exception {
+        doTestWithInput("Custom Test Line", (verifier) -> {
+            verifier.verifyToken(AsciidoctorTokenId.OTHER, "Custom Test Line");
+        });
+    }
+
+    @Test
     public void testSingleLineHeaders() throws Exception {
         doTest("test_one_line_headers.adoc", (verifier) -> {
             verifier.verifyToken(AsciidoctorTokenId.OTHER, "something\n\n");
@@ -39,8 +59,32 @@ public class AsciidoctorTokenizerTest {
         });
     }
 
+    @Test
+    public void testSkipHeaderLevels() throws Exception {
+        doTest("test_skip_header_levels.adoc", (verifier) -> {
+            verifier.verifyToken(AsciidoctorTokenId.HEADER1, "= Main Title");
+            verifier.verifyToken(AsciidoctorTokenId.OTHER, "\n\n");
+            verifier.verifyToken(AsciidoctorTokenId.HEADER2, "== 1. header 2");
+            verifier.verifyToken(AsciidoctorTokenId.OTHER, "\n\n");
+            verifier.verifyToken(AsciidoctorTokenId.HEADER3, "=== 1.1. header 3");
+            verifier.verifyToken(AsciidoctorTokenId.OTHER, "\n\n");
+            verifier.verifyToken(AsciidoctorTokenId.HEADER4, "==== 1.1.1. header 4");
+            verifier.verifyToken(AsciidoctorTokenId.OTHER, "\n\n");
+            verifier.verifyToken(AsciidoctorTokenId.HEADER2, "== 2. header 2");
+            verifier.verifyToken(AsciidoctorTokenId.OTHER, "\n\n");
+            verifier.verifyToken(AsciidoctorTokenId.HEADER4, "==== 2.1.1. header 4");
+            verifier.verifyToken(AsciidoctorTokenId.OTHER, "\n\n");
+            verifier.verifyToken(AsciidoctorTokenId.HEADER2, "== 3. header2");
+            verifier.verifyToken(AsciidoctorTokenId.OTHER, "\n");
+        });
+    }
+
     private void doTest(String asciidocPath, TokenizerResultVerifier resultVerifier) throws Exception {
         String input = ResourceUtils.readResource(getClass(), asciidocPath);
+        doTestWithInput(input, resultVerifier);
+    }
+
+    private void doTestWithInput(String input, TokenizerResultVerifier resultVerifier) throws Exception {
         AsciidoctorTokenizer tokenizer = new AsciidoctorTokenizer();
 
         List<AsciidoctorToken> tokens = tokenizer.readTokens(new ConstSimpleCharacterStream(input));

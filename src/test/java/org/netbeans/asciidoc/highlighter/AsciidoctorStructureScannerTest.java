@@ -82,6 +82,46 @@ public class AsciidoctorStructureScannerTest {
         });
     }
 
+    @Test
+    public void testSkipHeaderLevels() throws Exception {
+        testStructure((tokens, expectations) -> {
+            AsciidoctorToken header = tokens.addToken(AsciidoctorTokenId.HEADER1, "= Main Title");
+            tokens.addToken(AsciidoctorTokenId.OTHER, "\n\n");
+            AsciidoctorToken header1 = tokens.addToken(AsciidoctorTokenId.HEADER2, "== 1. header 2");
+            tokens.addToken(AsciidoctorTokenId.OTHER, "\n\n");
+            AsciidoctorToken header11 = tokens.addToken(AsciidoctorTokenId.HEADER3, "=== 1.1. header 3");
+            tokens.addToken(AsciidoctorTokenId.OTHER, "\n\n");
+            AsciidoctorToken header111 = tokens.addToken(AsciidoctorTokenId.HEADER4, "==== 1.1.1. header 4");
+            tokens.addToken(AsciidoctorTokenId.OTHER, "\n\n");
+            AsciidoctorToken header2 = tokens.addToken(AsciidoctorTokenId.HEADER2, "== 2. header 2");
+            tokens.addToken(AsciidoctorTokenId.OTHER, "\n\n");
+            AsciidoctorToken header2111 = tokens.addToken(AsciidoctorTokenId.HEADER4, "==== 2.1.1. header 4");
+            tokens.addToken(AsciidoctorTokenId.OTHER, "\n\n");
+            AsciidoctorToken header3 = tokens.addToken(AsciidoctorTokenId.HEADER2, "== 3. header2");
+            tokens.addToken(AsciidoctorTokenId.OTHER, "\n");
+
+            long endPos = tokens.getInputSize() - 1;
+
+            expectations.expectHeaderNode(header, "Main Title", endPos, (level1, level1Exp) -> {
+                int header1End = header2.getStartIndex() - 1;
+
+                level1Exp.expectHeaderNode(header1, "1. header 2", header1End, (level2, level2Exp) -> {
+                    level2Exp.expectHeaderNode(header11, "1.1. header 3", header1End, (level3, level3Exp) -> {
+                        level3Exp.expectHeaderNode(header111, "1.1.1. header 4", header1End);
+                    });
+                });
+
+                int header2End = header3.getStartIndex() - 1;
+
+                level1Exp.expectHeaderNode(header2, "2. header 2", header2End, (level2, level2Exp) -> {
+                    level2Exp.expectHeaderNode(header2111, "2.1.1. header 4", header2End);
+                });
+
+                level1Exp.expectHeaderNode(header3, "3. header2", endPos);
+            });
+        });
+    }
+
     private void testStructure(TokenListSetup setup) throws Exception {
         TokenListBuilder tokensBuilder = new TokenListBuilder();
         StructureExpectations expectations = new StructureExpectations();
