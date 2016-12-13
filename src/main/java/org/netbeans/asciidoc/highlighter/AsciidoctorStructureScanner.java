@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 import javax.swing.ImageIcon;
 import org.netbeans.modules.csl.api.ElementHandle;
 import org.netbeans.modules.csl.api.ElementKind;
@@ -51,7 +52,10 @@ public final class AsciidoctorStructureScanner implements StructureScanner {
         List<StructureItem> result = new ArrayList<>();
         Deque<HierarchicalStructureItem> parents = new ArrayDeque<>();
 
-        tokens.forEach((token) -> {
+        Stream<AsciidoctorToken> filteredTokens = tokens.stream()
+                .filter((token) -> token.getId().isGroupToken());
+
+        filteredTokens.forEach((token) -> {
             HierarchicalStructureItem current = new HierarchicalStructureItem(input, token);
 
             int currentLevel = token.getId().getLevel();

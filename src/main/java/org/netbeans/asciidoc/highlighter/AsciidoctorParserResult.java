@@ -19,7 +19,7 @@ public final class AsciidoctorParserResult extends ParserResult {
     private static List<AsciidoctorToken> filter(List<AsciidoctorToken> tokens) {
         List<AsciidoctorToken> result = new ArrayList<>();
         tokens.forEach((token) -> {
-            if (token.getId().isGroupToken()) {
+            if (token.getId() != AsciidoctorTokenId.OTHER) {
                 result.add(token);
             }
         });
