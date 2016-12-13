@@ -83,7 +83,7 @@ public enum AsciidoctorTokenId implements TokenId {
         return nameParser.getName(str, startOffset, endOffset);
     }
 
-    public boolean isGroupToken() {
+    public boolean isTableOfContentToken() {
         return level != Integer.MAX_VALUE;
     }
 

@@ -53,7 +53,7 @@ public final class AsciidoctorStructureScanner implements StructureScanner {
         Deque<HierarchicalStructureItem> parents = new ArrayDeque<>();
 
         Stream<AsciidoctorToken> filteredTokens = tokens.stream()
-                .filter((token) -> token.getId().isGroupToken());
+                .filter((token) -> token.getId().isTableOfContentToken());
 
         filteredTokens.forEach((token) -> {
             HierarchicalStructureItem current = new HierarchicalStructureItem(input, token);
