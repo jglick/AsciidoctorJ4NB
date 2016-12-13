@@ -2,7 +2,12 @@ package org.netbeans.asciidoc.highlighter;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import javax.swing.text.Document;
 import javax.swing.text.PlainDocument;
 import javax.swing.text.StringContent;
@@ -10,6 +15,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.netbeans.junit.MockServices;
+import org.netbeans.modules.csl.api.OffsetRange;
 import org.netbeans.modules.csl.api.StructureItem;
 import org.netbeans.modules.parsing.api.Snapshot;
 import org.netbeans.modules.parsing.api.Source;
@@ -111,7 +117,81 @@ public class AsciidoctorStructureScannerTest {
         });
     }
 
-    private void testStructure(TokenListSetup setup) throws Exception {
+    @Test
+    public void testSimpleFolds() throws Exception {
+        testFolds((tokens, expectations) -> {
+            tokens.addToken(AsciidoctorTokenId.OTHER, "something\n\n");
+            AsciidoctorToken header11 = tokens.addToken(AsciidoctorTokenId.HEADER2, "== First header 2");
+            tokens.addToken(AsciidoctorTokenId.OTHER, "\n\nsection body line 1\nsection body line 2\n\n");
+            AsciidoctorToken header12 = tokens.addToken(AsciidoctorTokenId.HEADER2, "== Second header 2");
+            tokens.addToken(AsciidoctorTokenId.OTHER, "\n\nsection body line 3\n\n");
+            AsciidoctorToken header21 = tokens.addToken(AsciidoctorTokenId.HEADER3, "=== Third header 3");
+            tokens.addToken(AsciidoctorTokenId.OTHER, "\n\n");
+            AsciidoctorToken codeBlock = tokens.addToken(AsciidoctorTokenId.CODE_BLOCK, "----\nMy Test Code Block\n----");
+            tokens.addToken(AsciidoctorTokenId.OTHER, "\n\nfinal part\n");
+
+            int endPos = tokens.getInputSize();
+
+            expectations.addRange(AsciidoctorTokenId.HEADER2.tryGetFoldGroup(),
+                    header11.getEndIndex(),
+                    header12.getStartIndex());
+            expectations.addRange(AsciidoctorTokenId.HEADER2.tryGetFoldGroup(),
+                    header12.getEndIndex(),
+                    endPos);
+            expectations.addRange(AsciidoctorTokenId.HEADER3.tryGetFoldGroup(),
+                    header21.getEndIndex(),
+                    endPos);
+            expectations.addRange(AsciidoctorTokenId.CODE_BLOCK.tryGetFoldGroup(),
+                    codeBlock.getStartIndex(),
+                    codeBlock.getEndIndex());
+        });
+    }
+
+    @Test
+    public void testFoldsWithSkipHeaderLevels() throws Exception {
+        testFolds((tokens, expectations) -> {
+            AsciidoctorToken header = tokens.addToken(AsciidoctorTokenId.HEADER1, "= Main Title");
+            tokens.addToken(AsciidoctorTokenId.OTHER, "\n\n");
+            AsciidoctorToken header1 = tokens.addToken(AsciidoctorTokenId.HEADER2, "== 1. header 2");
+            tokens.addToken(AsciidoctorTokenId.OTHER, "\n\n");
+            AsciidoctorToken header11 = tokens.addToken(AsciidoctorTokenId.HEADER3, "=== 1.1. header 3");
+            tokens.addToken(AsciidoctorTokenId.OTHER, "\n\n");
+            AsciidoctorToken header111 = tokens.addToken(AsciidoctorTokenId.HEADER4, "==== 1.1.1. header 4");
+            tokens.addToken(AsciidoctorTokenId.OTHER, "\n\n");
+            AsciidoctorToken header2 = tokens.addToken(AsciidoctorTokenId.HEADER2, "== 2. header 2");
+            tokens.addToken(AsciidoctorTokenId.OTHER, "\n\n");
+            AsciidoctorToken header2111 = tokens.addToken(AsciidoctorTokenId.HEADER4, "==== 2.1.1. header 4");
+            tokens.addToken(AsciidoctorTokenId.OTHER, "\n\n");
+            AsciidoctorToken header3 = tokens.addToken(AsciidoctorTokenId.HEADER2, "== 3. header2");
+            tokens.addToken(AsciidoctorTokenId.OTHER, "\n");
+
+            int endPos = tokens.getInputSize();
+
+            expectations.addRange(AsciidoctorTokenId.HEADER1.tryGetFoldGroup(),
+                    header.getEndIndex(),
+                    endPos);
+            expectations.addRange(AsciidoctorTokenId.HEADER2.tryGetFoldGroup(),
+                    header1.getEndIndex(),
+                    header2.getStartIndex());
+            expectations.addRange(AsciidoctorTokenId.HEADER3.tryGetFoldGroup(),
+                    header11.getEndIndex(),
+                    header2.getStartIndex());
+            expectations.addRange(AsciidoctorTokenId.HEADER4.tryGetFoldGroup(),
+                    header111.getEndIndex(),
+                    header2.getStartIndex());
+            expectations.addRange(AsciidoctorTokenId.HEADER2.tryGetFoldGroup(),
+                    header2.getEndIndex(),
+                    header3.getStartIndex());
+            expectations.addRange(AsciidoctorTokenId.HEADER4.tryGetFoldGroup(),
+                    header2111.getEndIndex(),
+                    header3.getStartIndex());
+            expectations.addRange(AsciidoctorTokenId.HEADER2.tryGetFoldGroup(),
+                    header3.getEndIndex(),
+                    endPos);
+        });
+    }
+
+    private void testStructure(ScanTestSetup setup) throws Exception {
         TokenListBuilder tokensBuilder = new TokenListBuilder();
         StructureExpectations expectations = new StructureExpectations();
 
@@ -121,6 +201,18 @@ public class AsciidoctorStructureScannerTest {
 
         List<? extends StructureItem> items = scanner.scan(tokensBuilder.getParserResult());
         expectations.verifyNodes(items);
+    }
+
+    private void testFolds(FoldsTestSetup setup) throws Exception {
+        TokenListBuilder tokensBuilder = new TokenListBuilder();
+        FoldExpectations expectations = new FoldExpectations();
+
+        setup.setupTest(tokensBuilder, expectations);
+
+        AsciidoctorStructureScanner scanner = new AsciidoctorStructureScanner();
+
+        Map<String, List<OffsetRange>> folds = scanner.folds(tokensBuilder.getParserResult());
+        expectations.verifyEquivalent(folds);
     }
 
     private static final class TokenListBuilder {
@@ -171,6 +263,34 @@ public class AsciidoctorStructureScannerTest {
 
         public List<AsciidoctorToken> getCurrentTokens() {
             return Collections.unmodifiableList(new ArrayList<>(tokens));
+        }
+    }
+
+    private interface FoldsTestSetup {
+        public void setupTest(TokenListBuilder tokens, FoldExpectations expectations) throws Exception;
+    }
+
+    private static final class FoldExpectations {
+        private final Map<String, Set<OffsetRange>> folds;
+
+        public FoldExpectations() {
+            this.folds = new LinkedHashMap<>();
+        }
+
+        public void addRange(String foldCode, int startOffset, int endOffset) {
+            Set<OffsetRange> foldsOfCode = folds.computeIfAbsent(foldCode, (key) -> new LinkedHashSet<>());
+            foldsOfCode.add(new OffsetRange(startOffset, endOffset));
+        }
+
+        public void verifyEquivalent(Map<String, List<OffsetRange>> received) {
+            folds.forEach((foldCode, foldsOfCode) -> {
+                List<OffsetRange> receivedFoldsOfCode = received.getOrDefault(foldCode, Collections.emptyList());
+                assertEquals("folds of " + foldCode, foldsOfCode, new HashSet<>(receivedFoldsOfCode));
+            });
+
+            if (folds.size() != received.size()) {
+                throw new AssertionError("Expected fold count: " + folds.size() + " but received " + received.size());
+            }
         }
     }
 
@@ -243,7 +363,7 @@ public class AsciidoctorStructureScannerTest {
         public void expectNode(StructureItem node, StructureExpectations childExpectations) throws Exception;
     }
 
-    private interface TokenListSetup {
+    private interface ScanTestSetup {
         public void setupTest(TokenListBuilder tokens, StructureExpectations expectations) throws Exception;
     }
 }
