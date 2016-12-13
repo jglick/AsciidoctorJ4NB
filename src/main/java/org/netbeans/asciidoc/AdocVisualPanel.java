@@ -18,7 +18,6 @@ import org.jtrim.concurrent.GenericUpdateTaskExecutor;
 import org.jtrim.concurrent.TaskExecutor;
 import org.jtrim.concurrent.UpdateTaskExecutor;
 import org.netbeans.api.progress.ProgressHandle;
-import org.netbeans.api.progress.ProgressHandleFactory;
 
 @SuppressWarnings("serial")
 public final class AdocVisualPanel extends JPanel {
@@ -50,7 +49,7 @@ public final class AdocVisualPanel extends JPanel {
         Objects.requireNonNull(asciidocProvider, "asciidocProvider");
 
         adocUpdater.execute(() -> {
-            ProgressHandle handle = ProgressHandleFactory.createHandle("Rendering Asciidoc ...");
+            ProgressHandle handle = ProgressHandle.createHandle("Rendering Asciidoc ...");
             handle.start();
             try {
                 String asciidocText = asciidocProvider.get();
