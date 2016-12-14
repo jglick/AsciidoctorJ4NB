@@ -36,7 +36,7 @@ public final class AsciidoctorStructureScanner implements StructureScanner {
                 List<AsciidoctorToken> tokens = result.getTokens();
                 return toStructureItems(info.getSnapshot().getText(), tokens);
             } catch (Exception ex) {
-                LOGGER.log(Level.INFO, "Internal error: Failed to create structured tree from tokens.", ex);
+                LOGGER.log(Level.INFO, "Internal error: Failed to create structure tree from tokens.", ex);
                 return Collections.emptyList();
             }
         }
