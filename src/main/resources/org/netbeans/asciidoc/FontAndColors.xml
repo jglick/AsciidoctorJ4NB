@@ -3,13 +3,13 @@
 <fontscolors>
     <fontcolor name='code_block' default='comment' />
     <fontcolor name='text_block' default='comment' />
-    <fontcolor name='header' default='keyword' foreColor="FF000000" bgColor="FFC0C0C0">
+    <fontcolor name='header' default='keyword' underline='black'>
         <font style="bold"/>
     </fontcolor>
     <fontcolor name='header1' default='header' />
-    <fontcolor name='header2' default='header' bgColor="FFC8C8C8" />
-    <fontcolor name='header3' default='header' bgColor="FFD0D0D0" />
-    <fontcolor name='header4' default='header' bgColor="FFD8D8D8" />
-    <fontcolor name='header5' default='header' bgColor="FFE0E0E0" />
-    <fontcolor name='header6' default='header' bgColor="FFE8E8E8" />
+    <fontcolor name='header2' default='header' />
+    <fontcolor name='header3' default='header' />
+    <fontcolor name='header4' default='header' />
+    <fontcolor name='header5' default='header' />
+    <fontcolor name='header6' default='header' />
 </fontscolors>
