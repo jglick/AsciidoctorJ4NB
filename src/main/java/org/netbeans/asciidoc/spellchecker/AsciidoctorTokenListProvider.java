@@ -2,7 +2,7 @@ package org.netbeans.asciidoc.spellchecker;
 
 import javax.swing.text.Document;
 import org.netbeans.api.editor.mimelookup.MimeRegistration;
-import org.netbeans.asciidoc.highlighter.AsciidoctorLanguageConfig;
+import org.netbeans.asciidoc.structure.AsciidoctorLanguageConfig;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.spellchecker.spi.language.TokenList;
 import org.netbeans.modules.spellchecker.spi.language.TokenListProvider;

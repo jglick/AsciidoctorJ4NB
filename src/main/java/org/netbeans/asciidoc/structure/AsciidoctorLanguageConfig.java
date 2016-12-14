@@ -1,4 +1,4 @@
-package org.netbeans.asciidoc.highlighter;
+package org.netbeans.asciidoc.structure;
 
 import org.netbeans.api.lexer.Language;
 import org.netbeans.modules.csl.api.StructureScanner;

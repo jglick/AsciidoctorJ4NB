@@ -1,4 +1,4 @@
-package org.netbeans.asciidoc.highlighter;
+package org.netbeans.asciidoc.structure;
 
 import java.util.Collections;
 import java.util.List;

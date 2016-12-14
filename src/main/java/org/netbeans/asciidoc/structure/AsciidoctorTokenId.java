@@ -1,4 +1,4 @@
-package org.netbeans.asciidoc.highlighter;
+package org.netbeans.asciidoc.structure;
 
 import java.util.Collection;
 import java.util.EnumSet;
@@ -14,7 +14,7 @@ import org.netbeans.spi.lexer.LanguageHierarchy;
 import org.netbeans.spi.lexer.Lexer;
 import org.netbeans.spi.lexer.LexerRestartInfo;
 
-import static org.netbeans.asciidoc.highlighter.AsciidoctorFoldTypeProvider.*;
+import static org.netbeans.asciidoc.structure.AsciidoctorFoldTypeProvider.*;
 
 public enum AsciidoctorTokenId implements TokenId {
     HEADER1(1, TYPE_HEADER.code(), "header1", AsciidoctorTokenId::getHeaderName),

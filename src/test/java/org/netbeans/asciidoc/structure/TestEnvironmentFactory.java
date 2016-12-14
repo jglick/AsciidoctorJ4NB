@@ -1,4 +1,4 @@
-package org.netbeans.asciidoc.highlighter;
+package org.netbeans.asciidoc.structure;
 
 import java.io.IOException;
 import java.util.Collection;

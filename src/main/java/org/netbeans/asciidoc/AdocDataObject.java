@@ -1,7 +1,7 @@
 package org.netbeans.asciidoc;
 
 import java.io.IOException;
-import org.netbeans.asciidoc.highlighter.AsciidoctorLanguageConfig;
+import org.netbeans.asciidoc.structure.AsciidoctorLanguageConfig;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
 import org.openide.awt.ActionID;
