@@ -42,7 +42,7 @@ public class AsciidoctorStructureScannerTest {
     @Test
     public void testTextOnly() throws Exception {
         testStructure((tokens, expectations) -> {
-            tokens.addToken(AsciidoctorTokenId.OTHER, "something bla bla");
+            tokens.addToken(AsciidoctorTokenId.PLAIN, "something bla bla");
         });
     }
 
@@ -58,15 +58,15 @@ public class AsciidoctorStructureScannerTest {
     @Test
     public void testSimpleStructure() throws Exception {
         testStructure((tokens, expectations) -> {
-            tokens.addToken(AsciidoctorTokenId.OTHER, "something\n\n");
+            tokens.addToken(AsciidoctorTokenId.PLAIN, "something\n\n");
             AsciidoctorToken header11 = tokens.addToken(AsciidoctorTokenId.HEADER2, "== First header 2");
-            tokens.addToken(AsciidoctorTokenId.OTHER, "\n\nsection body line 1\nsection body line 2\n\n");
+            tokens.addToken(AsciidoctorTokenId.PLAIN, "\n\nsection body line 1\nsection body line 2\n\n");
             AsciidoctorToken header12 = tokens.addToken(AsciidoctorTokenId.HEADER2, "== Second header 2");
-            tokens.addToken(AsciidoctorTokenId.OTHER, "\n\nsection body line 3\n\n");
+            tokens.addToken(AsciidoctorTokenId.PLAIN, "\n\nsection body line 3\n\n");
             AsciidoctorToken header21 = tokens.addToken(AsciidoctorTokenId.HEADER3, "=== Third header 3");
-            tokens.addToken(AsciidoctorTokenId.OTHER, "\n\n");
+            tokens.addToken(AsciidoctorTokenId.PLAIN, "\n\n");
             tokens.addToken(AsciidoctorTokenId.CODE_BLOCK, "----\nMy Test Code Block\n----");
-            tokens.addToken(AsciidoctorTokenId.OTHER, "\n\nfinal part\n");
+            tokens.addToken(AsciidoctorTokenId.PLAIN, "\n\nfinal part\n");
 
             long endPos = tokens.getInputSize() - 1;
 
@@ -81,19 +81,19 @@ public class AsciidoctorStructureScannerTest {
     public void testSkipHeaderLevels() throws Exception {
         testStructure((tokens, expectations) -> {
             AsciidoctorToken header = tokens.addToken(AsciidoctorTokenId.HEADER1, "= Main Title");
-            tokens.addToken(AsciidoctorTokenId.OTHER, "\n\n");
+            tokens.addToken(AsciidoctorTokenId.PLAIN, "\n\n");
             AsciidoctorToken header1 = tokens.addToken(AsciidoctorTokenId.HEADER2, "== 1. header 2");
-            tokens.addToken(AsciidoctorTokenId.OTHER, "\n\n");
+            tokens.addToken(AsciidoctorTokenId.PLAIN, "\n\n");
             AsciidoctorToken header11 = tokens.addToken(AsciidoctorTokenId.HEADER3, "=== 1.1. header 3");
-            tokens.addToken(AsciidoctorTokenId.OTHER, "\n\n");
+            tokens.addToken(AsciidoctorTokenId.PLAIN, "\n\n");
             AsciidoctorToken header111 = tokens.addToken(AsciidoctorTokenId.HEADER4, "==== 1.1.1. header 4");
-            tokens.addToken(AsciidoctorTokenId.OTHER, "\n\n");
+            tokens.addToken(AsciidoctorTokenId.PLAIN, "\n\n");
             AsciidoctorToken header2 = tokens.addToken(AsciidoctorTokenId.HEADER2, "== 2. header 2");
-            tokens.addToken(AsciidoctorTokenId.OTHER, "\n\n");
+            tokens.addToken(AsciidoctorTokenId.PLAIN, "\n\n");
             AsciidoctorToken header2111 = tokens.addToken(AsciidoctorTokenId.HEADER4, "==== 2.1.1. header 4");
-            tokens.addToken(AsciidoctorTokenId.OTHER, "\n\n");
+            tokens.addToken(AsciidoctorTokenId.PLAIN, "\n\n");
             AsciidoctorToken header3 = tokens.addToken(AsciidoctorTokenId.HEADER2, "== 3. header2");
-            tokens.addToken(AsciidoctorTokenId.OTHER, "\n");
+            tokens.addToken(AsciidoctorTokenId.PLAIN, "\n");
 
             long endPos = tokens.getInputSize() - 1;
 
@@ -120,15 +120,15 @@ public class AsciidoctorStructureScannerTest {
     @Test
     public void testSimpleFolds() throws Exception {
         testFolds((tokens, expectations) -> {
-            tokens.addToken(AsciidoctorTokenId.OTHER, "something\n\n");
+            tokens.addToken(AsciidoctorTokenId.PLAIN, "something\n\n");
             AsciidoctorToken header11 = tokens.addToken(AsciidoctorTokenId.HEADER2, "== First header 2");
-            tokens.addToken(AsciidoctorTokenId.OTHER, "\n\nsection body line 1\nsection body line 2\n\n");
+            tokens.addToken(AsciidoctorTokenId.PLAIN, "\n\nsection body line 1\nsection body line 2\n\n");
             AsciidoctorToken header12 = tokens.addToken(AsciidoctorTokenId.HEADER2, "== Second header 2");
-            tokens.addToken(AsciidoctorTokenId.OTHER, "\n\nsection body line 3\n\n");
+            tokens.addToken(AsciidoctorTokenId.PLAIN, "\n\nsection body line 3\n\n");
             AsciidoctorToken header21 = tokens.addToken(AsciidoctorTokenId.HEADER3, "=== Third header 3");
-            tokens.addToken(AsciidoctorTokenId.OTHER, "\n\n");
+            tokens.addToken(AsciidoctorTokenId.PLAIN, "\n\n");
             AsciidoctorToken codeBlock = tokens.addToken(AsciidoctorTokenId.CODE_BLOCK, "----\nMy Test Code Block\n----");
-            tokens.addToken(AsciidoctorTokenId.OTHER, "\n\nfinal part\n");
+            tokens.addToken(AsciidoctorTokenId.PLAIN, "\n\nfinal part\n");
 
             int endPos = tokens.getInputSize();
 
@@ -151,19 +151,19 @@ public class AsciidoctorStructureScannerTest {
     public void testFoldsWithSkipHeaderLevels() throws Exception {
         testFolds((tokens, expectations) -> {
             AsciidoctorToken header = tokens.addToken(AsciidoctorTokenId.HEADER1, "= Main Title");
-            tokens.addToken(AsciidoctorTokenId.OTHER, "\n\n");
+            tokens.addToken(AsciidoctorTokenId.PLAIN, "\n\n");
             AsciidoctorToken header1 = tokens.addToken(AsciidoctorTokenId.HEADER2, "== 1. header 2");
-            tokens.addToken(AsciidoctorTokenId.OTHER, "\n\n");
+            tokens.addToken(AsciidoctorTokenId.PLAIN, "\n\n");
             AsciidoctorToken header11 = tokens.addToken(AsciidoctorTokenId.HEADER3, "=== 1.1. header 3");
-            tokens.addToken(AsciidoctorTokenId.OTHER, "\n\n");
+            tokens.addToken(AsciidoctorTokenId.PLAIN, "\n\n");
             AsciidoctorToken header111 = tokens.addToken(AsciidoctorTokenId.HEADER4, "==== 1.1.1. header 4");
-            tokens.addToken(AsciidoctorTokenId.OTHER, "\n\n");
+            tokens.addToken(AsciidoctorTokenId.PLAIN, "\n\n");
             AsciidoctorToken header2 = tokens.addToken(AsciidoctorTokenId.HEADER2, "== 2. header 2");
-            tokens.addToken(AsciidoctorTokenId.OTHER, "\n\n");
+            tokens.addToken(AsciidoctorTokenId.PLAIN, "\n\n");
             AsciidoctorToken header2111 = tokens.addToken(AsciidoctorTokenId.HEADER4, "==== 2.1.1. header 4");
-            tokens.addToken(AsciidoctorTokenId.OTHER, "\n\n");
+            tokens.addToken(AsciidoctorTokenId.PLAIN, "\n\n");
             AsciidoctorToken header3 = tokens.addToken(AsciidoctorTokenId.HEADER2, "== 3. header2");
-            tokens.addToken(AsciidoctorTokenId.OTHER, "\n");
+            tokens.addToken(AsciidoctorTokenId.PLAIN, "\n");
 
             int endPos = tokens.getInputSize();
 

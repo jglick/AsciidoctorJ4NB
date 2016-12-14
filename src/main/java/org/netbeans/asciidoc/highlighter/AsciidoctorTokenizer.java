@@ -44,7 +44,7 @@ public final class AsciidoctorTokenizer {
         List<AsciidoctorToken> result = new ArrayList<>(128);
 
         Deque<InProgressToken> tokenQueue = new ArrayDeque<>();
-        InProgressToken root = new InProgressToken(AsciidoctorTokenId.OTHER, 0, Integer.MAX_VALUE);
+        InProgressToken root = new InProgressToken(AsciidoctorTokenId.PLAIN, 0, Integer.MAX_VALUE);
         tokenQueue.push(root);
 
         int nextOffset = 0;

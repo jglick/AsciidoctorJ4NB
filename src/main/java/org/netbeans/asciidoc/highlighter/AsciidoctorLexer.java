@@ -63,7 +63,7 @@ public final class AsciidoctorLexer implements Lexer<AsciidoctorTokenId> {
                 count++;
             }
 
-            return Collections.singletonList(new AsciidoctorToken(AsciidoctorTokenId.OTHER, 0, count));
+            return Collections.singletonList(new AsciidoctorToken(AsciidoctorTokenId.PLAIN, 0, count));
         }
     }
 }

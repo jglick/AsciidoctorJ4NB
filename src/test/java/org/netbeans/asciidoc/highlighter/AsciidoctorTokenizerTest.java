@@ -25,37 +25,37 @@ public class AsciidoctorTokenizerTest {
     @Test
     public void testSingleLineWithTextOnly() throws Exception {
         doTestWithInput("Custom Test Line", (verifier) -> {
-            verifier.verifyToken(AsciidoctorTokenId.OTHER, "Custom Test Line");
+            verifier.verifyToken(AsciidoctorTokenId.PLAIN, "Custom Test Line");
         });
     }
 
     @Test
     public void testSingleLineHeaders() throws Exception {
         doTest("test_one_line_headers.adoc", (verifier) -> {
-            verifier.verifyToken(AsciidoctorTokenId.OTHER, "something\n\n");
+            verifier.verifyToken(AsciidoctorTokenId.PLAIN, "something\n\n");
             verifier.verifyToken(AsciidoctorTokenId.HEADER2, "== First header 2");
-            verifier.verifyToken(AsciidoctorTokenId.OTHER, "\n\nsection body line 1\nsection body line 2\n\n");
+            verifier.verifyToken(AsciidoctorTokenId.PLAIN, "\n\nsection body line 1\nsection body line 2\n\n");
             verifier.verifyToken(AsciidoctorTokenId.HEADER2, "== Second header 2");
-            verifier.verifyToken(AsciidoctorTokenId.OTHER, "\n\nsection body line 3\n\n");
+            verifier.verifyToken(AsciidoctorTokenId.PLAIN, "\n\nsection body line 3\n\n");
             verifier.verifyToken(AsciidoctorTokenId.HEADER3, "=== Third header 3");
-            verifier.verifyToken(AsciidoctorTokenId.OTHER, "\n\n");
+            verifier.verifyToken(AsciidoctorTokenId.PLAIN, "\n\n");
             verifier.verifyToken(AsciidoctorTokenId.CODE_BLOCK, "----\nMy Test Code Block\n----");
-            verifier.verifyToken(AsciidoctorTokenId.OTHER, "\n\nfinal part\n");
+            verifier.verifyToken(AsciidoctorTokenId.PLAIN, "\n\nfinal part\n");
         });
     }
 
     @Test
     public void testTwoLinesHeaders() throws Exception {
         doTest("test_two_lines_headers.adoc", (verifier) -> {
-            verifier.verifyToken(AsciidoctorTokenId.OTHER, "something\n\n");
+            verifier.verifyToken(AsciidoctorTokenId.PLAIN, "something\n\n");
             verifier.verifyToken(AsciidoctorTokenId.HEADER2, "First header 2\n--------------");
-            verifier.verifyToken(AsciidoctorTokenId.OTHER, "\n\nsection body line 1\nsection body line 2\n\n");
+            verifier.verifyToken(AsciidoctorTokenId.PLAIN, "\n\nsection body line 1\nsection body line 2\n\n");
             verifier.verifyToken(AsciidoctorTokenId.HEADER2, "Second header 2\n---------------");
-            verifier.verifyToken(AsciidoctorTokenId.OTHER, "\n\nsection body line 3\n\n");
+            verifier.verifyToken(AsciidoctorTokenId.PLAIN, "\n\nsection body line 3\n\n");
             verifier.verifyToken(AsciidoctorTokenId.HEADER3, "Third header 3\n~~~~~~~~~~~~~~");
-            verifier.verifyToken(AsciidoctorTokenId.OTHER, "\n\n");
+            verifier.verifyToken(AsciidoctorTokenId.PLAIN, "\n\n");
             verifier.verifyToken(AsciidoctorTokenId.CODE_BLOCK, "----\nMy Test Code Block\n----");
-            verifier.verifyToken(AsciidoctorTokenId.OTHER, "\n\nfinal part\n");
+            verifier.verifyToken(AsciidoctorTokenId.PLAIN, "\n\nfinal part\n");
         });
     }
 
@@ -63,19 +63,19 @@ public class AsciidoctorTokenizerTest {
     public void testSkipHeaderLevels() throws Exception {
         doTest("test_skip_header_levels.adoc", (verifier) -> {
             verifier.verifyToken(AsciidoctorTokenId.HEADER1, "= Main Title");
-            verifier.verifyToken(AsciidoctorTokenId.OTHER, "\n\n");
+            verifier.verifyToken(AsciidoctorTokenId.PLAIN, "\n\n");
             verifier.verifyToken(AsciidoctorTokenId.HEADER2, "== 1. header 2");
-            verifier.verifyToken(AsciidoctorTokenId.OTHER, "\n\n");
+            verifier.verifyToken(AsciidoctorTokenId.PLAIN, "\n\n");
             verifier.verifyToken(AsciidoctorTokenId.HEADER3, "=== 1.1. header 3");
-            verifier.verifyToken(AsciidoctorTokenId.OTHER, "\n\n");
+            verifier.verifyToken(AsciidoctorTokenId.PLAIN, "\n\n");
             verifier.verifyToken(AsciidoctorTokenId.HEADER4, "==== 1.1.1. header 4");
-            verifier.verifyToken(AsciidoctorTokenId.OTHER, "\n\n");
+            verifier.verifyToken(AsciidoctorTokenId.PLAIN, "\n\n");
             verifier.verifyToken(AsciidoctorTokenId.HEADER2, "== 2. header 2");
-            verifier.verifyToken(AsciidoctorTokenId.OTHER, "\n\n");
+            verifier.verifyToken(AsciidoctorTokenId.PLAIN, "\n\n");
             verifier.verifyToken(AsciidoctorTokenId.HEADER4, "==== 2.1.1. header 4");
-            verifier.verifyToken(AsciidoctorTokenId.OTHER, "\n\n");
+            verifier.verifyToken(AsciidoctorTokenId.PLAIN, "\n\n");
             verifier.verifyToken(AsciidoctorTokenId.HEADER2, "== 3. header2");
-            verifier.verifyToken(AsciidoctorTokenId.OTHER, "\n");
+            verifier.verifyToken(AsciidoctorTokenId.PLAIN, "\n");
         });
     }
 

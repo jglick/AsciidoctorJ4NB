@@ -12,4 +12,5 @@
     <fontcolor name='header4' default='header' />
     <fontcolor name='header5' default='header' />
     <fontcolor name='header6' default='header' />
+    <fontcolor name='plain' />
 </fontscolors>
