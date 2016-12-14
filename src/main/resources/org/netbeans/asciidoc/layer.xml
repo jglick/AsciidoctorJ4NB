@@ -20,7 +20,7 @@
                 </folder>
                 <folder name="Hints">
                     <file name="org-netbeans-modules-spellchecker-hints-DictionaryBasedHintsProvider.instance">
-                        <attr name="instanceCreate" methodvalue="org.netbeans.modules.spellchecker.hints.DictionaryBasedHintsProvider.create" />
+                        <attr name="instanceCreate" methodvalue="org.netbeans.modules.spellchecker.hints.DictionaryBasedHintsProvider.create"/>
                     </file>
                 </folder>
                 <folder name="CompletionProviders">
