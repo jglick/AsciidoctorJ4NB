@@ -33,12 +33,12 @@ public final class AsciidoctorTypedBreakInterceptorFactory implements TypedBreak
 
     private static final class AsciidoctorTypedBreakInterceptor implements TypedBreakInterceptor {
         @Override
-        public boolean beforeInsert(TypedBreakInterceptor.Context context) throws BadLocationException {
+        public boolean beforeInsert(Context context) throws BadLocationException {
             return false;
         }
 
         @Override
-        public void insert(TypedBreakInterceptor.MutableContext context) throws BadLocationException {
+        public void insert(MutableContext context) throws BadLocationException {
             int caretOffset = context.getCaretOffset();
 
             String line = DocumentUtils.getLineUntilPos(context.getDocument(), caretOffset);
@@ -52,11 +52,11 @@ public final class AsciidoctorTypedBreakInterceptorFactory implements TypedBreak
         }
 
         @Override
-        public void afterInsert(TypedBreakInterceptor.Context context) throws BadLocationException {
+        public void afterInsert(Context context) throws BadLocationException {
         }
 
         @Override
-        public void cancelled(TypedBreakInterceptor.Context context) {
+        public void cancelled(Context context) {
         }
     }
 }
