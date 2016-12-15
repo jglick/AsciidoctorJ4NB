@@ -12,13 +12,19 @@ import org.netbeans.spi.editor.typinghooks.TypedBreakInterceptor;
         service = TypedBreakInterceptor.Factory.class)
 public final class AsciidoctorTypedBreakInterceptorFactory implements TypedBreakInterceptor.Factory {
     private static final NewLineInserter[] LINE_INSERTERS = new NewLineInserter[]{
-        NewLineInserters::tryInsertArabicListLine,
-        NewLineInserters::tryInsertLetterListLine,
-        NewLineInserters::tryInsertRomanListLine,
-        NewLineInserters.unorderedListElementInserter(),
-        NewLineInserters.nestableListElementInserter1(),
-        NewLineInserters.nestableListElementInserter2()
+        listLineInserters()
     };
+
+    private static NewLineInserter listLineInserters() {
+        return NewLineInserters.indentableLineInserters(
+                NewLineInserters::tryInsertArabicListLine,
+                NewLineInserters::tryInsertLetterListLine,
+                NewLineInserters::tryInsertRomanListLine,
+                NewLineInserters.unorderedListElementInserter(),
+                NewLineInserters.nestableListElementInserter1(),
+                NewLineInserters.nestableListElementInserter2()
+        );
+    }
 
     @Override
     public TypedBreakInterceptor createTypedBreakInterceptor(MimePath mimePath) {

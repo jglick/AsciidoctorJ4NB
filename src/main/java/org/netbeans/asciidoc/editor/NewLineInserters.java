@@ -1,37 +1,57 @@
 package org.netbeans.asciidoc.editor;
 
+import org.jtrim.utils.ExceptionHelper;
 import org.netbeans.asciidoc.util.RomanNumerals;
 
 public final class NewLineInserters {
     private static final int MAX_ROMAN_LENGTH = 20;
 
-    public static String tryInsertArabicListLine(String prevLine) {
-        return tryInsertListLine(prevLine, '.', NewLineInserters::tryGetNextArabicIndex);
+    public static NewLineInserter indentableLineInserters(IndentableNewLineInserter... inserters) {
+        IndentableNewLineInserter[] insertersCopy = inserters.clone();
+        ExceptionHelper.checkNotNullElements(insertersCopy, "inserters");
+
+        return (String prevLine) -> {
+            int nonSpaceIndex = findFirstNonSpace(prevLine);
+            if (nonSpaceIndex < 0) {
+                return null;
+            }
+
+            for (IndentableNewLineInserter inserter: insertersCopy) {
+                String result = inserter.tryGetLineToAdd(prevLine, nonSpaceIndex);
+                if (result != null) {
+                    return result;
+                }
+            }
+            return null;
+        };
     }
 
-    public static String tryInsertLetterListLine(String prevLine) {
-        return tryInsertListLine(prevLine, '.', NewLineInserters::tryGetNextLetterIndex);
+    public static String tryInsertArabicListLine(String prevLine, int nonSpaceIndex) {
+        return tryInsertListLine(prevLine, nonSpaceIndex, '.', NewLineInserters::tryGetNextArabicIndex);
     }
 
-    public static String tryInsertRomanListLine(String prevLine) {
-        return tryInsertListLine(prevLine, ')', NewLineInserters::tryGetNextRomanIndex);
+    public static String tryInsertLetterListLine(String prevLine, int nonSpaceIndex) {
+        return tryInsertListLine(prevLine, nonSpaceIndex, '.', NewLineInserters::tryGetNextLetterIndex);
     }
 
-    public static NewLineInserter unorderedListElementInserter() {
-        return (prevLine) -> tryInsertUnorderedListElement(prevLine, '-');
+    public static String tryInsertRomanListLine(String prevLine, int nonSpaceIndex) {
+        return tryInsertListLine(prevLine, nonSpaceIndex, ')', NewLineInserters::tryGetNextRomanIndex);
     }
 
-    public static NewLineInserter nestableListElementInserter1() {
-        return (prevLine) -> tryInsertNestableListElement(prevLine, '.');
+    public static IndentableNewLineInserter unorderedListElementInserter() {
+        return (prevLine, nonSpaceIndex) -> tryInsertUnorderedListElement(prevLine, nonSpaceIndex, '-');
     }
 
-    public static NewLineInserter nestableListElementInserter2() {
-        return (prevLine) -> tryInsertNestableListElement(prevLine, '*');
+    public static IndentableNewLineInserter nestableListElementInserter1() {
+        return (prevLine, nonSpaceIndex) -> tryInsertNestableListElement(prevLine, nonSpaceIndex, '.');
     }
 
-    private static String tryInsertUnorderedListElement(String prevLine, char prefixChar) {
-        int nonSpaceIndex = findFirstNonSpace(prevLine);
-        if (nonSpaceIndex < 0 || (nonSpaceIndex + 1 >= prevLine.length())) {
+    public static IndentableNewLineInserter nestableListElementInserter2() {
+        return (prevLine, nonSpaceIndex) -> tryInsertNestableListElement(prevLine, nonSpaceIndex, '*');
+    }
+
+    private static String tryInsertUnorderedListElement(String prevLine, int nonSpaceIndex, char prefixChar) {
+        if (nonSpaceIndex + 1 >= prevLine.length()) {
             return null;
         }
 
@@ -46,12 +66,7 @@ public final class NewLineInserters {
         }
     }
 
-    private static String tryInsertNestableListElement(String prevLine, char prefixChar) {
-        int nonSpaceIndex = findFirstNonSpace(prevLine);
-        if (nonSpaceIndex < 0) {
-            return null;
-        }
-
+    private static String tryInsertNestableListElement(String prevLine, int nonSpaceIndex, char prefixChar) {
         if (prevLine.charAt(nonSpaceIndex) != prefixChar) {
             return null;
         }
@@ -71,12 +86,11 @@ public final class NewLineInserters {
         return result.toString();
     }
 
-    private static String tryInsertListLine(String prevLine, char indexSepChar, NextIndexGetter nextIndexGetter) {
-        int nonSpaceIndex = findFirstNonSpace(prevLine);
-        if (nonSpaceIndex < 0) {
-            return null;
-        }
-
+    private static String tryInsertListLine(
+            String prevLine,
+            int nonSpaceIndex,
+            char indexSepChar,
+            NextIndexGetter nextIndexGetter) {
         int indexSepIndex = prevLine.indexOf(indexSepChar, nonSpaceIndex);
         if (indexSepIndex < 0) {
             return null;
