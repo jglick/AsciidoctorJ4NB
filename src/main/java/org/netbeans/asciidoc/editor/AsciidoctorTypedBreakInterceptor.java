@@ -5,12 +5,16 @@ import org.netbeans.api.editor.mimelookup.MimePath;
 import org.netbeans.api.editor.mimelookup.MimeRegistration;
 import org.netbeans.asciidoc.structure.AsciidoctorLanguageConfig;
 import org.netbeans.asciidoc.util.DocumentUtils;
+import org.netbeans.asciidoc.util.RomanNumerals;
 import org.netbeans.spi.editor.typinghooks.TypedBreakInterceptor;
 
 public final class AsciidoctorTypedBreakInterceptor implements TypedBreakInterceptor {
+    private static final int MAX_ROMAN_LENGTH = 20;
+
     private static final LineInserter[] LINE_INSERTERS = new LineInserter[]{
         AsciidoctorTypedBreakInterceptor::tryInsertArabicListLine,
-        AsciidoctorTypedBreakInterceptor::tryInsertLetterListLine
+        AsciidoctorTypedBreakInterceptor::tryInsertLetterListLine,
+        AsciidoctorTypedBreakInterceptor::tryInsertRomanListLine
     };
 
     @Override
@@ -46,6 +50,10 @@ public final class AsciidoctorTypedBreakInterceptor implements TypedBreakInterce
 
     private static String tryInsertLetterListLine(String prevLine) {
         return tryInsertListLine(prevLine, '.', AsciidoctorTypedBreakInterceptor::tryGetNextLetterIndex);
+    }
+
+    private static String tryInsertRomanListLine(String prevLine) {
+        return tryInsertListLine(prevLine, ')', AsciidoctorTypedBreakInterceptor::tryGetNextRomanIndex);
     }
 
     private static String tryInsertListLine(String prevLine, char indexSepChar, NextIndexGetter nextIndexGetter) {
@@ -92,6 +100,33 @@ public final class AsciidoctorTypedBreakInterceptor implements TypedBreakInterce
         } catch (NumberFormatException ex) {
             return null;
         }
+    }
+
+    private static String tryGetNextRomanIndex(String indexStr, int startOffset, int endOffset) {
+        if (endOffset - startOffset > MAX_ROMAN_LENGTH) {
+            return null;
+        }
+
+        try {
+            int index = RomanNumerals.parseRoman(indexStr, startOffset, endOffset, -1);
+            if (index == -1) {
+                return null;
+            }
+
+            return RomanNumerals.tryConvertToRoman(index + 1, hasUpper(indexStr, startOffset, endOffset));
+        } catch (NumberFormatException ex) {
+            return null;
+        }
+    }
+
+    private static boolean hasUpper(String str, int startOffset, int endOffset) {
+        for (int i = startOffset; i < endOffset; i++) {
+            char ch = str.charAt(i);
+            if (ch >= 'A' && ch <= 'Z') {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static String tryGetNextLetterIndex(String indexStr, int startOffset, int endOffset) {
