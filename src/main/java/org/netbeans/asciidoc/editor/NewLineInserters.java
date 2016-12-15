@@ -21,6 +21,14 @@ public final class NewLineInserters {
         return (prevLine) -> tryInsertUnorderedListElement(prevLine, '-');
     }
 
+    public static NewLineInserter nestableListElementInserter1() {
+        return (prevLine) -> tryInsertNestableListElement(prevLine, '.');
+    }
+
+    public static NewLineInserter nestableListElementInserter2() {
+        return (prevLine) -> tryInsertNestableListElement(prevLine, '*');
+    }
+
     private static String tryInsertUnorderedListElement(String prevLine, char prefixChar) {
         int nonSpaceIndex = findFirstNonSpace(prevLine);
         if (nonSpaceIndex < 0 || (nonSpaceIndex + 1 >= prevLine.length())) {
@@ -36,6 +44,31 @@ public final class NewLineInserters {
         else {
             return null;
         }
+    }
+
+    private static String tryInsertNestableListElement(String prevLine, char prefixChar) {
+        int nonSpaceIndex = findFirstNonSpace(prevLine);
+        if (nonSpaceIndex < 0) {
+            return null;
+        }
+
+        if (prevLine.charAt(nonSpaceIndex) != prefixChar) {
+            return null;
+        }
+
+        int prefixEndIndex = findFirstDifferent(prevLine, nonSpaceIndex, prefixChar);
+        if (prefixEndIndex < 0) {
+            return null;
+        }
+
+        if (!isSpace(prevLine.charAt(prefixEndIndex))) {
+            return null;
+        }
+
+        StringBuilder result = new StringBuilder(prefixEndIndex + 2);
+        result.append('\n');
+        result.append(prevLine, 0, prefixEndIndex + 1);
+        return result.toString();
     }
 
     private static String tryInsertListLine(String prevLine, char indexSepChar, NextIndexGetter nextIndexGetter) {
@@ -121,6 +154,15 @@ public final class NewLineInserters {
             return Character.toString((char)(ch + 1));
         }
         return null;
+    }
+
+    private static int findFirstDifferent(String str, int offset, char ch) {
+        for (int i = offset; i < str.length(); i++) {
+            if (str.charAt(i) != ch) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     private static int findFirstNonSpace(String str) {
