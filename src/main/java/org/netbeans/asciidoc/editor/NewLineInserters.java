@@ -1,59 +1,20 @@
 package org.netbeans.asciidoc.editor;
 
-import javax.swing.text.BadLocationException;
-import org.netbeans.api.editor.mimelookup.MimePath;
-import org.netbeans.api.editor.mimelookup.MimeRegistration;
-import org.netbeans.asciidoc.structure.AsciidoctorLanguageConfig;
-import org.netbeans.asciidoc.util.DocumentUtils;
 import org.netbeans.asciidoc.util.RomanNumerals;
-import org.netbeans.spi.editor.typinghooks.TypedBreakInterceptor;
 
-public final class AsciidoctorTypedBreakInterceptor implements TypedBreakInterceptor {
+public final class NewLineInserters {
     private static final int MAX_ROMAN_LENGTH = 20;
 
-    private static final LineInserter[] LINE_INSERTERS = new LineInserter[]{
-        AsciidoctorTypedBreakInterceptor::tryInsertArabicListLine,
-        AsciidoctorTypedBreakInterceptor::tryInsertLetterListLine,
-        AsciidoctorTypedBreakInterceptor::tryInsertRomanListLine
-    };
-
-    @Override
-    public boolean beforeInsert(Context context) throws BadLocationException {
-        return false;
+    public static String tryInsertArabicListLine(String prevLine) {
+        return tryInsertListLine(prevLine, '.', NewLineInserters::tryGetNextArabicIndex);
     }
 
-    @Override
-    public void insert(MutableContext context) throws BadLocationException {
-        int caretOffset = context.getCaretOffset();
-
-        String line = DocumentUtils.getLineUntilPos(context.getDocument(), caretOffset);
-        for (LineInserter inserter: LINE_INSERTERS) {
-            String newLine = inserter.tryGetLineToAdd(line);
-            if (newLine != null) {
-                context.setText(newLine, 0, newLine.length());
-                return;
-            }
-        }
+    public static String tryInsertLetterListLine(String prevLine) {
+        return tryInsertListLine(prevLine, '.', NewLineInserters::tryGetNextLetterIndex);
     }
 
-    @Override
-    public void afterInsert(Context context) throws BadLocationException {
-    }
-
-    @Override
-    public void cancelled(Context context) {
-    }
-
-    private static String tryInsertArabicListLine(String prevLine) {
-        return tryInsertListLine(prevLine, '.', AsciidoctorTypedBreakInterceptor::tryGetNextArabicIndex);
-    }
-
-    private static String tryInsertLetterListLine(String prevLine) {
-        return tryInsertListLine(prevLine, '.', AsciidoctorTypedBreakInterceptor::tryGetNextLetterIndex);
-    }
-
-    private static String tryInsertRomanListLine(String prevLine) {
-        return tryInsertListLine(prevLine, ')', AsciidoctorTypedBreakInterceptor::tryGetNextRomanIndex);
+    public static String tryInsertRomanListLine(String prevLine) {
+        return tryInsertListLine(prevLine, ')', NewLineInserters::tryGetNextRomanIndex);
     }
 
     private static String tryInsertListLine(String prevLine, char indexSepChar, NextIndexGetter nextIndexGetter) {
@@ -154,17 +115,7 @@ public final class AsciidoctorTypedBreakInterceptor implements TypedBreakInterce
         public String tryGetNextIndex(String indexStr, int startOffset, int endOffset);
     }
 
-    private interface LineInserter {
-        public String tryGetLineToAdd(String prevLine);
-    }
-
-    @MimeRegistration(
-            mimeType = AsciidoctorLanguageConfig.MIME_TYPE,
-            service = TypedBreakInterceptor.Factory.class)
-    public static class AsciidoctorFactory implements TypedBreakInterceptor.Factory {
-        @Override
-        public TypedBreakInterceptor createTypedBreakInterceptor(MimePath mimePath) {
-            return new AsciidoctorTypedBreakInterceptor();
-        }
+    private NewLineInserters() {
+        throw new AssertionError();
     }
 }
