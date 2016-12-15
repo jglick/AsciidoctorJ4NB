@@ -180,6 +180,101 @@ public class NewLineInsertersTest {
         testIndentableLineInserter(NewLineInserters::tryInsertRomanListLine, "- Line1", null);
     }
 
+    @Test
+    public void testIndentableLineInsertersEmptyPrevLine() {
+        testIndentableLineInsertersEmptyPrevLine("");
+        testIndentableLineInsertersEmptyPrevLine(" ");
+        testIndentableLineInsertersEmptyPrevLine("  ");
+        testIndentableLineInsertersEmptyPrevLine("\t");
+        testIndentableLineInsertersEmptyPrevLine(" \t");
+    }
+
+    private void testIndentableLineInsertersEmptyPrevLine(String prefix) {
+        String input = prefix;
+        testIndentableLineInserters(input, null,
+                mockUnexpectedIndentableInserter());
+    }
+
+    @Test
+    public void testIndentableLineInsertersSimplePrevLine() {
+        testIndentableLineInsertersSimplePrevLine("");
+        testIndentableLineInsertersSimplePrevLine(" ");
+        testIndentableLineInsertersSimplePrevLine("  ");
+        testIndentableLineInsertersSimplePrevLine("\t");
+        testIndentableLineInsertersSimplePrevLine(" \t");
+    }
+
+    private void testIndentableLineInsertersSimplePrevLine(String prefix) {
+        String input = prefix + "Line1";
+        testIndentableLineInserters(input, "TestResult",
+                mockIndentableInserter(input, prefix.length(), null),
+                mockIndentableInserter(input, prefix.length(), "TestResult"));
+    }
+
+    @Test
+    public void testIndentableLineInsertersStopCallForFirstResult() {
+        String input = "Line1";
+        testIndentableLineInserters(input, "TestResult",
+                mockIndentableInserter(input, 0, null),
+                mockIndentableInserter(input, 0, "TestResult"),
+                mockUnexpectedIndentableInserter());
+    }
+
+    @Test
+    public void testIndentableLineInsertersCorrectOrder() {
+        String input = "Line1";
+        testIndentableLineInserters(input, "TestResult1",
+                mockIndentableInserter(input, 0, "TestResult1"),
+                mockIndentableInserter(input, 0, "TestResult2"));
+    }
+
+    @Test
+    public void testIndentableLineInsertersZeroInserter() {
+        testIndentableLineInserters("Line1", null);
+    }
+
+    @Test
+    public void testIndentableLineInsertersSingleInserter() {
+        String input = "Line1";
+        testIndentableLineInserters(input, "TestResult1",
+                mockIndentableInserter(input, 0, "TestResult1"));
+    }
+
+    @Test
+    public void testIndentableLineInsertersNullResult() {
+        String input = "Line1";
+        testIndentableLineInserters(input, null,
+                mockIndentableInserter(input, 0, null),
+                mockIndentableInserter(input, 0, null));
+    }
+
+    private static IndentableNewLineInserter mockIndentableInserter(
+            String expectedPrevLine,
+            int expectedNonSpaceIndex,
+            String result) {
+        return (String prevLine, int nonSpaceIndex) -> {
+            assertEquals("prevLine", expectedPrevLine, prevLine);
+            assertEquals("nonSpaceIndex", expectedNonSpaceIndex, nonSpaceIndex);
+            return result;
+        };
+    }
+
+    private static IndentableNewLineInserter mockUnexpectedIndentableInserter() {
+        return (String prevLine, int nonSpaceIndex) -> {
+            throw new AssertionError("Unexpected call to IndentableNewLineInserter");
+        };
+    }
+
+    private void testIndentableLineInserters(
+            String prevLine,
+            String expectedResult,
+            IndentableNewLineInserter... inserters) {
+
+        NewLineInserter inserter = NewLineInserters.indentableLineInserters(inserters);
+        String result = inserter.tryGetLineToAdd(prevLine);
+        assertEquals("tryGetLineToAdd", expectedResult, result);
+    }
+
     private static void testIndentableLineInserter(
             IndentableNewLineInserter inserter,
             String prevLine,
