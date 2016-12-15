@@ -67,6 +67,10 @@ public final class NewLineInserters {
     }
 
     private static String tryInsertNestableListElement(String prevLine, int nonSpaceIndex, char prefixChar) {
+        if (nonSpaceIndex >= prevLine.length()) {
+            return null;
+        }
+
         if (prevLine.charAt(nonSpaceIndex) != prefixChar) {
             return null;
         }
@@ -91,6 +95,10 @@ public final class NewLineInserters {
             int nonSpaceIndex,
             char indexSepChar,
             NextIndexGetter nextIndexGetter) {
+        if (nonSpaceIndex >= prevLine.length()) {
+            return null;
+        }
+
         int indexSepIndex = prevLine.indexOf(indexSepChar, nonSpaceIndex);
         if (indexSepIndex < 0) {
             return null;
