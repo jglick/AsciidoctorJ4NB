@@ -14,7 +14,8 @@ public final class AsciidoctorTypedBreakInterceptorFactory implements TypedBreak
     private static final NewLineInserter[] LINE_INSERTERS = new NewLineInserter[]{
         NewLineInserters::tryInsertArabicListLine,
         NewLineInserters::tryInsertLetterListLine,
-        NewLineInserters::tryInsertRomanListLine
+        NewLineInserters::tryInsertRomanListLine,
+        NewLineInserters.unorderedListElementInserter()
     };
 
     @Override

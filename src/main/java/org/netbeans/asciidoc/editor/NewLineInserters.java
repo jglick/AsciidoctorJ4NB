@@ -17,6 +17,27 @@ public final class NewLineInserters {
         return tryInsertListLine(prevLine, ')', NewLineInserters::tryGetNextRomanIndex);
     }
 
+    public static NewLineInserter unorderedListElementInserter() {
+        return (prevLine) -> tryInsertUnorderedListElement(prevLine, '-');
+    }
+
+    private static String tryInsertUnorderedListElement(String prevLine, char prefixChar) {
+        int nonSpaceIndex = findFirstNonSpace(prevLine);
+        if (nonSpaceIndex < 0 || (nonSpaceIndex + 1 >= prevLine.length())) {
+            return null;
+        }
+
+        if (prevLine.charAt(nonSpaceIndex) == prefixChar && isSpace(prevLine.charAt(nonSpaceIndex + 1))) {
+            StringBuilder result = new StringBuilder(nonSpaceIndex + 3);
+            result.append('\n');
+            result.append(prevLine, 0, nonSpaceIndex + 2);
+            return result.toString();
+        }
+        else {
+            return null;
+        }
+    }
+
     private static String tryInsertListLine(String prevLine, char indexSepChar, NextIndexGetter nextIndexGetter) {
         int nonSpaceIndex = findFirstNonSpace(prevLine);
         if (nonSpaceIndex < 0) {
@@ -104,11 +125,15 @@ public final class NewLineInserters {
 
     private static int findFirstNonSpace(String str) {
         for (int i = 0; i < str.length(); i++) {
-            if (str.charAt(i) > ' ') {
+            if (!isSpace(str.charAt(i))) {
                 return i;
             }
         }
         return -1;
+    }
+
+    private static boolean isSpace(char ch) {
+        return ch <= ' ';
     }
 
     private interface NextIndexGetter {
