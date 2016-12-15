@@ -9,7 +9,8 @@ import org.netbeans.spi.editor.typinghooks.TypedBreakInterceptor;
 
 public final class AsciidoctorTypedBreakInterceptor implements TypedBreakInterceptor {
     private static final LineInserter[] LINE_INSERTERS = new LineInserter[]{
-        AsciidoctorTypedBreakInterceptor::tryInsertArabicListLine
+        AsciidoctorTypedBreakInterceptor::tryInsertArabicListLine,
+        AsciidoctorTypedBreakInterceptor::tryInsertLetterListLine
     };
 
     @Override
@@ -41,6 +42,10 @@ public final class AsciidoctorTypedBreakInterceptor implements TypedBreakInterce
 
     private static String tryInsertArabicListLine(String prevLine) {
         return tryInsertListLine(prevLine, '.', AsciidoctorTypedBreakInterceptor::tryGetNextArabicIndex);
+    }
+
+    private static String tryInsertLetterListLine(String prevLine) {
+        return tryInsertListLine(prevLine, '.', AsciidoctorTypedBreakInterceptor::tryGetNextLetterIndex);
     }
 
     private static String tryInsertListLine(String prevLine, char indexSepChar, NextIndexGetter nextIndexGetter) {
@@ -87,6 +92,18 @@ public final class AsciidoctorTypedBreakInterceptor implements TypedBreakInterce
         } catch (NumberFormatException ex) {
             return null;
         }
+    }
+
+    private static String tryGetNextLetterIndex(String indexStr, int startOffset, int endOffset) {
+        if (endOffset - startOffset != 1) {
+            return null;
+        }
+
+        char ch = indexStr.charAt(startOffset);
+        if ((ch >= 'a' && ch < 'z') || (ch >= 'A' && ch < 'Z')) {
+            return Character.toString((char)(ch + 1));
+        }
+        return null;
     }
 
     private static int findFirstNonSpace(String str) {
