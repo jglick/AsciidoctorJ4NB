@@ -20,7 +20,7 @@ public class DocumentUtilsTest {
 
     @Test
     public void testGetLineUntilPosWithLongSingleLine() throws Exception {
-        String content = generateTestString(2000);
+        String content = TestDocumentUtils.generateTestString(2000);
         int pos = 1900;
         testGetLineUntilPos(content, pos, content.substring(0, pos));
     }
@@ -45,27 +45,13 @@ public class DocumentUtilsTest {
 
     private void testGetLineUntilPosWithLongMultiLine(String lineSeparator) throws Exception {
         testGetLineUntilPosWithMultiLine(lineSeparator,
-                generateTestString(2100, 'a', 'm'),
-                generateTestString(1900, 'n', 'z'));
+                TestDocumentUtils.generateTestString(2100, 'a', 'm'),
+                TestDocumentUtils.generateTestString(1900, 'n', 'z'));
     }
 
     private void testGetLineUntilPosWithMultiLine(String lineSeparator, String firstLine, String secondLine) throws Exception {
         String content = firstLine + lineSeparator + secondLine;
         testGetLineUntilPos(content, content.length() - 4, secondLine.substring(0, secondLine.length() - 4));
-    }
-
-    private String generateTestString(int length) {
-        return generateTestString(length, 'a', 'z');
-    }
-
-    private String generateTestString(int length, char startChar, char endChar) {
-        StringBuilder result = new StringBuilder();
-        char ch = 'a';
-        for (int i = 0; i < length; i++) {
-            result.append(ch);
-            ch = (char)(((ch + 1 - startChar) % (endChar - startChar)) + startChar);
-        }
-        return result.toString();
     }
 
     private void testGetLineUntilPos(String content, int pos, String expectedResult) throws BadLocationException {

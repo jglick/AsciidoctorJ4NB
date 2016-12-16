@@ -34,6 +34,20 @@ public final class TestDocumentUtils {
         return source.createSnapshot();
     }
 
+    public static String generateTestString(int length) {
+        return generateTestString(length, 'a', 'z');
+    }
+
+    public static String generateTestString(int length, char startChar, char endChar) {
+        StringBuilder result = new StringBuilder();
+        char ch = 'a';
+        for (int i = 0; i < length; i++) {
+            result.append(ch);
+            ch = (char)(((ch + 1 - startChar) % (endChar - startChar)) + startChar);
+        }
+        return result.toString();
+    }
+
     private TestDocumentUtils() {
         throw new AssertionError();
     }
