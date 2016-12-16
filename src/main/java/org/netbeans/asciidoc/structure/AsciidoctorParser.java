@@ -16,18 +16,16 @@ public final class AsciidoctorParser extends Parser {
     private static final Logger LOGGER = Logger.getLogger(AsciidoctorParser.class.getName());
 
     private final AsciidoctorTokenizer tokenizer;
-    private Snapshot snapshot;
-    private List<AsciidoctorToken> tokens;
+    private AsciidoctorParserResult parserResult;
 
     public AsciidoctorParser() {
         this.tokenizer = new AsciidoctorTokenizer();
-        this.tokens = Collections.emptyList();
+        this.parserResult = null;
     }
 
     @Override
     public void parse(Snapshot snapshot, Task task, SourceModificationEvent event) throws ParseException {
-        this.snapshot = snapshot;
-        this.tokens = getTokens(snapshot.getText());
+        this.parserResult = parseSnapshot(snapshot);
     }
 
     private List<AsciidoctorToken> getTokens(CharSequence input) {
@@ -39,9 +37,14 @@ public final class AsciidoctorParser extends Parser {
         }
     }
 
-    @Override
-    public Result getResult(Task task) throws ParseException {
+    private AsciidoctorParserResult parseSnapshot(Snapshot snapshot) {
+        List<AsciidoctorToken> tokens = getTokens(snapshot.getText());
         return new AsciidoctorParserResult(snapshot, tokens);
+    }
+
+    @Override
+    public AsciidoctorParserResult getResult(Task task) throws ParseException {
+        return parserResult;
     }
 
     @Override
