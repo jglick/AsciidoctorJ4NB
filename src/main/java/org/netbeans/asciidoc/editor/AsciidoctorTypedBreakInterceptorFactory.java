@@ -11,20 +11,14 @@ import org.netbeans.spi.editor.typinghooks.TypedBreakInterceptor;
         mimeType = AsciidoctorLanguageConfig.MIME_TYPE,
         service = TypedBreakInterceptor.Factory.class)
 public final class AsciidoctorTypedBreakInterceptorFactory implements TypedBreakInterceptor.Factory {
-    private static final NewLineInserter[] LINE_INSERTERS = new NewLineInserter[]{
-        listLineInserters()
-    };
-
-    private static NewLineInserter listLineInserters() {
-        return NewLineInserters.indentableLineInserters(
-                NewLineInserters::tryInsertArabicListLine,
-                NewLineInserters::tryInsertLetterListLine,
-                NewLineInserters::tryInsertRomanListLine,
-                NewLineInserters.unorderedListElementInserter(),
-                NewLineInserters.nestableListElementInserter1(),
-                NewLineInserters.nestableListElementInserter2()
-        );
-    }
+    private static final NewLineInserter LINE_INSERTERS = NewLineInserters.indentableLineInserters(
+            NewLineInserters::tryInsertArabicListLine,
+            NewLineInserters::tryInsertLetterListLine,
+            NewLineInserters::tryInsertRomanListLine,
+            NewLineInserters.unorderedListElementInserter(),
+            NewLineInserters.nestableListElementInserter1(),
+            NewLineInserters.nestableListElementInserter2()
+    );
 
     @Override
     public TypedBreakInterceptor createTypedBreakInterceptor(MimePath mimePath) {
@@ -42,12 +36,9 @@ public final class AsciidoctorTypedBreakInterceptorFactory implements TypedBreak
             int caretOffset = context.getCaretOffset();
 
             String line = DocumentUtils.getLineUntilPos(context.getDocument(), caretOffset);
-            for (NewLineInserter inserter: LINE_INSERTERS) {
-                String newLine = inserter.tryGetLineToAdd(line);
-                if (newLine != null) {
-                    context.setText(newLine, 0, newLine.length());
-                    return;
-                }
+            String newLine = LINE_INSERTERS.tryGetLineToAdd(line);
+            if (newLine != null) {
+                context.setText(newLine, 0, newLine.length());
             }
         }
 
