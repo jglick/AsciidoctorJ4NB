@@ -15,7 +15,13 @@ public final class DefaultDocumentNewLineInserter implements DocumentNewLineInse
 
     @Override
     public String tryGetLineToAdd(Document document, int caretOffset) {
-        String line = DocumentUtils.getLineUntilPos(document, caretOffset);
+        String line = DocumentUtils.getLineUntilPos(document, caretOffset, (String candidate) -> {
+            if (candidate.isEmpty() || candidate.charAt(0) > ' ') {
+                return true;
+            }
+
+            return LINE_INSERTERS.tryGetLineToAdd(candidate) != null;
+        });
         return LINE_INSERTERS.tryGetLineToAdd(line);
     }
 }
