@@ -8,17 +8,14 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.swing.text.Document;
-import javax.swing.text.PlainDocument;
-import javax.swing.text.StringContent;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.netbeans.asciidoc.util.TestDocumentUtils;
 import org.netbeans.junit.MockServices;
 import org.netbeans.modules.csl.api.OffsetRange;
 import org.netbeans.modules.csl.api.StructureItem;
 import org.netbeans.modules.parsing.api.Snapshot;
-import org.netbeans.modules.parsing.api.Source;
 
 import static org.junit.Assert.*;
 
@@ -244,17 +241,7 @@ public class AsciidoctorStructureScannerTest {
         }
 
         public Snapshot getInputSnapshot() throws Exception {
-            return createSnapshot(getAllInput());
-        }
-
-        private Snapshot createSnapshot(String content) throws Exception {
-            StringContent docContent = new StringContent();
-            docContent.insertString(0, content);
-            Document document = new PlainDocument(docContent);
-            document.putProperty("mimeType", AsciidoctorLanguageConfig.MIME_TYPE);
-
-            Source source = Source.create(document);
-            return source.createSnapshot();
+            return TestDocumentUtils.createAsciidoctorSnapshot(getAllInput());
         }
 
         public AsciidoctorParserResult getParserResult() throws Exception {

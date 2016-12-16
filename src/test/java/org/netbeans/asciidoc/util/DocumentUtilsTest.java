@@ -2,9 +2,6 @@ package org.netbeans.asciidoc.util;
 
 import java.util.Objects;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
-import javax.swing.text.PlainDocument;
-import javax.swing.text.StringContent;
 import org.junit.Test;
 
 public class DocumentUtilsTest {
@@ -72,17 +69,11 @@ public class DocumentUtilsTest {
     }
 
     private void testGetLineUntilPos(String content, int pos, String expectedResult) throws BadLocationException {
-        String actualResult = DocumentUtils.getLineUntilPos(createDocument(content), pos);
+        String actualResult = DocumentUtils.getLineUntilPos(TestDocumentUtils.createDocument(content), pos);
         if (!Objects.equals(actualResult, expectedResult)) {
             throw new AssertionError("Expected result: \"" + expectedResult
                     + "\" but received: \"" + actualResult
                     + "\" at position " + pos + " for document \"" + content + "\"");
         }
-    }
-
-    private static Document createDocument(String content) throws BadLocationException {
-        StringContent docContent = new StringContent();
-        docContent.insertString(0, content);
-        return new PlainDocument(docContent);
     }
 }
