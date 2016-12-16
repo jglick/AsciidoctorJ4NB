@@ -12,10 +12,12 @@ import org.netbeans.spi.editor.typinghooks.TypedBreakInterceptor;
 public final class AsciidoctorTypedBreakInterceptorFactory implements TypedBreakInterceptor.Factory {
     @Override
     public TypedBreakInterceptor createTypedBreakInterceptor(MimePath mimePath) {
-        return new AsciidoctorTypedBreakInterceptor();
+        return AsciidoctorTypedBreakInterceptor.INSTANCE;
     }
 
-    private static final class AsciidoctorTypedBreakInterceptor implements TypedBreakInterceptor {
+    private enum AsciidoctorTypedBreakInterceptor implements TypedBreakInterceptor {
+        INSTANCE;
+
         private static final DocumentNewLineInserter NEW_LINE_INSERTER = new DefaultDocumentNewLineInserter();
 
         @Override
