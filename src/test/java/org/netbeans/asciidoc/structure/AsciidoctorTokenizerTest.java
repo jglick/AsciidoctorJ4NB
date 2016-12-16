@@ -45,6 +45,17 @@ public class AsciidoctorTokenizerTest {
     }
 
     @Test
+    public void testWithMultipleLineBreaks() throws Exception {
+        doTestWithInput("= Test Header 1\n== Test Header 2/1\nText\n\n\n\n== Test Header 2/2", (verifier) -> {
+            verifier.verifyToken(AsciidoctorTokenId.HEADER1, "= Test Header 1");
+            verifier.verifyToken(AsciidoctorTokenId.PLAIN, "\n");
+            verifier.verifyToken(AsciidoctorTokenId.HEADER2, "== Test Header 2/1");
+            verifier.verifyToken(AsciidoctorTokenId.PLAIN, "\nText\n\n\n\n");
+            verifier.verifyToken(AsciidoctorTokenId.HEADER2, "== Test Header 2/2");
+        });
+    }
+
+    @Test
     public void testTwoLinesHeaders() throws Exception {
         doTest("test_two_lines_headers.adoc", (verifier) -> {
             verifier.verifyToken(AsciidoctorTokenId.PLAIN, "something\n\n");

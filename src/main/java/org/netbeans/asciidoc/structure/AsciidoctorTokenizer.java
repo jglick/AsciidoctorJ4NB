@@ -106,6 +106,10 @@ public final class AsciidoctorTokenizer {
     }
 
     private static AsciidoctorTokenId tryGetUnderlinedHeaderId(String line, String nextLine) {
+        if (!hasNonSpace(line)) {
+            return null;
+        }
+
         for (UnderlinedHeaderDef def: UNDERLINED_HEADER_DEFS) {
             AsciidoctorTokenId result = def.tryGetHeaderId(line, nextLine);
             if (result != null) {
@@ -113,6 +117,15 @@ public final class AsciidoctorTokenizer {
             }
         }
         return null;
+    }
+
+    private static boolean hasNonSpace(String str) {
+        for (int i = 0; i < str.length(); i++) {
+            if (str.charAt(i) > ' ') {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static AsciidoctorTokenId tryGetHeaderTokenId(String line, char headerPrefix) {
