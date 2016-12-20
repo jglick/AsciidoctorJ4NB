@@ -1,6 +1,7 @@
 package org.netbeans.asciidoc;
 
 import java.io.IOException;
+import org.netbeans.asciidoc.structure.AsciidoctorLanguageConfig;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
 import org.openide.awt.ActionID;
@@ -17,76 +18,79 @@ import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
 
 @Messages({
-    "LBL_Adoc_LOADER=Files of Adoc"
+    "LBL_ASCIIDOC_LOADER=Files of AsciiDoc"
 })
 @MIMEResolver.ExtensionRegistration(
-        displayName = "#LBL_Adoc_LOADER",
-        mimeType = "text/x-adoc",
-        extension = {"adoc", "ADOC", "Adoc"}
+        displayName = "#LBL_ASCIIDOC_LOADER",
+        mimeType = AsciidoctorLanguageConfig.MIME_TYPE,
+        extension = {"ad", "adoc", "asc", "asciidoc"}
 )
 @DataObject.Registration(
-        mimeType = "text/x-adoc",
+        mimeType = AsciidoctorLanguageConfig.MIME_TYPE,
         iconBase = "org/netbeans/asciidoc/resources/icon.png",
-        displayName = "#LBL_Adoc_LOADER",
+        displayName = "#LBL_ASCIIDOC_LOADER",
         position = 300
 )
 @ActionReferences({
     @ActionReference(
-            path = "Loaders/text/x-adoc/Actions",
+            path = AdocDataObject.ASCIIDOC_LOADERS_PATH + "/Actions",
             id = @ActionID(category = "System", id = "org.openide.actions.OpenAction"),
             position = 100,
             separatorAfter = 200
     ),
     @ActionReference(
-            path = "Loaders/text/x-adoc/Actions",
+            path = AdocDataObject.ASCIIDOC_LOADERS_PATH + "/Actions",
             id = @ActionID(category = "Edit", id = "org.openide.actions.CutAction"),
             position = 300
     ),
     @ActionReference(
-            path = "Loaders/text/x-adoc/Actions",
+            path = AdocDataObject.ASCIIDOC_LOADERS_PATH + "/Actions",
             id = @ActionID(category = "Edit", id = "org.openide.actions.CopyAction"),
             position = 400,
             separatorAfter = 500
     ),
     @ActionReference(
-            path = "Loaders/text/x-adoc/Actions",
+            path = AdocDataObject.ASCIIDOC_LOADERS_PATH + "/Actions",
             id = @ActionID(category = "Edit", id = "org.openide.actions.DeleteAction"),
             position = 600
     ),
     @ActionReference(
-            path = "Loaders/text/x-adoc/Actions",
+            path = AdocDataObject.ASCIIDOC_LOADERS_PATH + "/Actions",
             id = @ActionID(category = "System", id = "org.openide.actions.RenameAction"),
             position = 700,
             separatorAfter = 800
     ),
     @ActionReference(
-            path = "Loaders/text/x-adoc/Actions",
+            path = AdocDataObject.ASCIIDOC_LOADERS_PATH + "/Actions",
             id = @ActionID(category = "System", id = "org.openide.actions.SaveAsTemplateAction"),
             position = 900,
             separatorAfter = 1000
     ),
     @ActionReference(
-            path = "Loaders/text/x-adoc/Actions",
+            path = AdocDataObject.ASCIIDOC_LOADERS_PATH + "/Actions",
             id = @ActionID(category = "System", id = "org.openide.actions.FileSystemAction"),
             position = 1100,
             separatorAfter = 1200
     ),
     @ActionReference(
-            path = "Loaders/text/x-adoc/Actions",
+            path = AdocDataObject.ASCIIDOC_LOADERS_PATH + "/Actions",
             id = @ActionID(category = "System", id = "org.openide.actions.ToolsAction"),
             position = 1300
     ),
     @ActionReference(
-            path = "Loaders/text/x-adoc/Actions",
+            path = AdocDataObject.ASCIIDOC_LOADERS_PATH + "/Actions",
             id = @ActionID(category = "System", id = "org.openide.actions.PropertiesAction"),
             position = 1400
     )
 })
 public class AdocDataObject extends MultiDataObject {
+    private static final long serialVersionUID = 1L;
+
+    static final String ASCIIDOC_LOADERS_PATH = "Loaders/text/" + AsciidoctorLanguageConfig.MIME_TYPE;
 
     public AdocDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
         super(pf, loader);
-        registerEditor("text/x-adoc", true);
+        registerEditor(AsciidoctorLanguageConfig.MIME_TYPE, true);
     }
 
     @Override
@@ -95,14 +99,14 @@ public class AdocDataObject extends MultiDataObject {
     }
 
     @MultiViewElement.Registration(
-            displayName = "#LBL_Adoc_EDITOR",
+            displayName = "#LBL_ASCIIDOC_EDITOR",
             iconBase = "org/netbeans/asciidoc/resources/icon.png",
-            mimeType = "text/x-adoc",
+            mimeType = "text/x-asciidoc",
             persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED,
-            preferredID = "Adoc",
+            preferredID = "AsciiDoc",
             position = 1000
     )
-    @Messages("LBL_Adoc_EDITOR=Source")
+    @Messages("LBL_ASCIIDOC_EDITOR=Source")
     public static MultiViewEditorElement createEditor(Lookup lkp) {
         return new MultiViewEditorElement(lkp);
     }

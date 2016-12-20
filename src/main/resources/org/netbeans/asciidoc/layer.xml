@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
+<filesystem>
+    <folder name="Editors">
+        <folder name="text">
+            <folder name="x-asciidoc">
+                <attr name="displayName" bundlevalue="org.netbeans.asciidoc.Bundle#ASCIIDOCTOR_NAME"/>
+                <folder name="FontsColors">
+                    <folder name="NetBeans">
+                        <folder name="Defaults">
+                            <file name="FontAndColors.xml" url="FontAndColors.xml">
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.asciidoc.Bundle"/>
+                            </file>
+                        </folder>
+                    </folder>
+                </folder>
+                <folder name="Hints">
+                    <file name="org-netbeans-modules-spellchecker-hints-DictionaryBasedHintsProvider.instance">
+                        <attr name="instanceCreate" methodvalue="org.netbeans.modules.spellchecker.hints.DictionaryBasedHintsProvider.create"/>
+                    </file>
+                </folder>
+                <folder name="CompletionProviders">
+                    <file name="org-netbeans-modules-spellchecker-completion-WordCompletion.instance"/>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="Spellcheckers">
+        <file name="Asciidoctor">
+            <attr name="displayName" bundlevalue="org.netbeans.asciidoc.Bundle#ASCIIDOCTOR_NAME"/>
+        </file>
+    </folder>
+</filesystem>

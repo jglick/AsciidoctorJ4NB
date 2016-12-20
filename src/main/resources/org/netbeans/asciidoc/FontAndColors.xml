@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE fontscolors PUBLIC "-//NetBeans//DTD Editor Fonts and Colors settings 1.1//EN" "http://www.netbeans.org/dtds/EditorFontsColors-1_1.dtd">
+<fontscolors>
+    <fontcolor name='code_block' default='comment' />
+    <fontcolor name='text_block' default='comment' />
+    <fontcolor name='header' default='keyword' underline='black'>
+        <font style="bold"/>
+    </fontcolor>
+    <fontcolor name='header1' default='header' />
+    <fontcolor name='header2' default='header' />
+    <fontcolor name='header3' default='header' />
+    <fontcolor name='header4' default='header' />
+    <fontcolor name='header5' default='header' />
+    <fontcolor name='header6' default='header' />
+    <fontcolor name='plain' />
+</fontscolors>
