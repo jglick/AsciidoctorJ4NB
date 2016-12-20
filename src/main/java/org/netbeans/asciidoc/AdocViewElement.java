@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JToolBar;
+import org.netbeans.asciidoc.structure.AsciidoctorLanguageConfig;
 import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
@@ -21,7 +22,7 @@ import org.openide.windows.TopComponent;
 @MultiViewElement.Registration(
         displayName = "#LBL_ASCIIDOC_VISUAL",
         iconBase = "org/netbeans/asciidoc/resources/icon.png",
-        mimeType = "text/x-asciidoc",
+        mimeType = AsciidoctorLanguageConfig.MIME_TYPE,
         persistenceType = TopComponent.PERSISTENCE_NEVER,
         preferredID = "AdocVisual",
         position = 2000

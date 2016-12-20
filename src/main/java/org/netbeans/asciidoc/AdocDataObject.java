@@ -26,59 +26,59 @@ import org.openide.windows.TopComponent;
         extension = {"ad", "adoc", "asc", "asciidoc"}
 )
 @DataObject.Registration(
-        mimeType = "text/x-asciidoc",
+        mimeType = AsciidoctorLanguageConfig.MIME_TYPE,
         iconBase = "org/netbeans/asciidoc/resources/icon.png",
         displayName = "#LBL_ASCIIDOC_LOADER",
         position = 300
 )
 @ActionReferences({
     @ActionReference(
-            path = "Loaders/text/x-asciidoc/Actions",
+            path = AdocDataObject.ASCIIDOC_LOADERS_PATH + "/Actions",
             id = @ActionID(category = "System", id = "org.openide.actions.OpenAction"),
             position = 100,
             separatorAfter = 200
     ),
     @ActionReference(
-            path = "Loaders/text/x-asciidoc/Actions",
+            path = AdocDataObject.ASCIIDOC_LOADERS_PATH + "/Actions",
             id = @ActionID(category = "Edit", id = "org.openide.actions.CutAction"),
             position = 300
     ),
     @ActionReference(
-            path = "Loaders/text/x-asciidoc/Actions",
+            path = AdocDataObject.ASCIIDOC_LOADERS_PATH + "/Actions",
             id = @ActionID(category = "Edit", id = "org.openide.actions.CopyAction"),
             position = 400,
             separatorAfter = 500
     ),
     @ActionReference(
-            path = "Loaders/text/x-asciidoc/Actions",
+            path = AdocDataObject.ASCIIDOC_LOADERS_PATH + "/Actions",
             id = @ActionID(category = "Edit", id = "org.openide.actions.DeleteAction"),
             position = 600
     ),
     @ActionReference(
-            path = "Loaders/text/x-asciidoc/Actions",
+            path = AdocDataObject.ASCIIDOC_LOADERS_PATH + "/Actions",
             id = @ActionID(category = "System", id = "org.openide.actions.RenameAction"),
             position = 700,
             separatorAfter = 800
     ),
     @ActionReference(
-            path = "Loaders/text/x-asciidoc/Actions",
+            path = AdocDataObject.ASCIIDOC_LOADERS_PATH + "/Actions",
             id = @ActionID(category = "System", id = "org.openide.actions.SaveAsTemplateAction"),
             position = 900,
             separatorAfter = 1000
     ),
     @ActionReference(
-            path = "Loaders/text/x-asciidoc/Actions",
+            path = AdocDataObject.ASCIIDOC_LOADERS_PATH + "/Actions",
             id = @ActionID(category = "System", id = "org.openide.actions.FileSystemAction"),
             position = 1100,
             separatorAfter = 1200
     ),
     @ActionReference(
-            path = "Loaders/text/x-asciidoc/Actions",
+            path = AdocDataObject.ASCIIDOC_LOADERS_PATH + "/Actions",
             id = @ActionID(category = "System", id = "org.openide.actions.ToolsAction"),
             position = 1300
     ),
     @ActionReference(
-            path = "Loaders/text/x-asciidoc/Actions",
+            path = AdocDataObject.ASCIIDOC_LOADERS_PATH + "/Actions",
             id = @ActionID(category = "System", id = "org.openide.actions.PropertiesAction"),
             position = 1400
     )
@@ -86,9 +86,11 @@ import org.openide.windows.TopComponent;
 public class AdocDataObject extends MultiDataObject {
     private static final long serialVersionUID = 1L;
 
+    static final String ASCIIDOC_LOADERS_PATH = "Loaders/text/" + AsciidoctorLanguageConfig.MIME_TYPE;
+
     public AdocDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
         super(pf, loader);
-        registerEditor("text/x-asciidoc", true);
+        registerEditor(AsciidoctorLanguageConfig.MIME_TYPE, true);
     }
 
     @Override
